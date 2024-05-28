@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "djangoadmin"
+version = "0.1.0"
+description = ""
+authors = ["robot <suke971219@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.6"
+psycopg = "^3.1.19"
+toml = "^0.10.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
