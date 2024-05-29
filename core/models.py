@@ -17,3 +17,12 @@ class User(AbstractUser):
     @jsonGetter
     def avatar_url(self):
         return self.avatar.url if self.avatar else None
+    
+    def get_all_permissions(self):
+        groups = self.groups.all()
+        group_permissions = [permission for group in groups for permission in group.permissions.all()]
+        user_permissions = self.user_permissions.all()
+        permission = set()
+        for p in group_permissions+list(user_permissions):
+            permission.add(p)
+        return permission

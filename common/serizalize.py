@@ -29,7 +29,7 @@ class Serozalizer:
             return obj
         if isinstance(obj, ImageFieldFile):
             return obj.url if obj else None
-        if isinstance(obj,datetime):
+        if isinstance(obj, datetime):
             return timezone.localtime(obj).strftime("%Y-%m-%d %H:%M:%S")
         if isinstance(obj, dict):
             return self._convert_dict(obj)
@@ -48,9 +48,9 @@ class Serozalizer:
         return [self.convert(item) for item in obj]
 
     def serialize(self):
-        data =  dict(self._serizlize())
+        data = dict(self._serizlize())
         for key in self.hidden:
-            data.pop(key,None)
+            data.pop(key, None)
         return data
 
     def _serizlize(self):
@@ -94,7 +94,7 @@ class ModelSerozalizer(Serozalizer):
         obj,
         extra: dict[str, Callable[[Any], Any]] = None,
         with_foreign_keys: bool = True,
-        with_relations: bool = True,
+        with_relations: bool = False,
         **kwargs,
     ):
         """尝试自动遍历 Model 并转换为 json
@@ -111,25 +111,32 @@ class ModelSerozalizer(Serozalizer):
 
     def fields(self):
         for field in self.obj._meta.get_fields():
-            yield field.name
+            if hasattr(self.obj, field.name) and not field.is_relation:
+                yield field.name
 
     def relations(self):
         for field in self.obj._meta.get_fields():
             if hasattr(self.obj, field.name) and field.is_relation:
                 yield field
 
+    def serialize(self):
+        return super().serialize()
+
     def _serizlize(self):
         yield from super()._serizlize()
-
+        
         for relation in self.relations():
-            if relation.many_to_one and self.with_foreign_keys:
-                yield relation.name, serizalize(getattr(self.obj, relation.name))
-            if relation.one_to_many and self.with_relations:
-                yield relation.name, serizalize(getattr(self.obj, relation.name).all())
-            if relation.many_to_many and self.with_relations:
-                yield relation.name, serizalize(getattr(self.obj, relation.name).all())
-            if relation.one_to_one and self.with_relations:
-                yield relation.name, serizalize(getattr(self.obj, relation.name))
+            # print(relation.name,getattr(self.obj, relation.name))
+
+            if (relation.one_to_one or relation.many_to_one) and self.with_foreign_keys:
+                yield relation.name, serizalize(getattr(self.obj, relation.name),with_foreign_keys=False,with_relations=False) if getattr(self.obj, relation.name) else None
+            if (
+                relation.one_to_many or relation.many_to_many
+            ) and self.with_relations:
+                yield relation.name, serizalize(getattr(self.obj, relation.name).all(),with_foreign_keys=False,with_relations=False) if getattr(self.obj, relation.name) else None
+
+        for k, v in self.extra.items():
+            yield k, v(self.obj)
 
 
 def serizalize(
@@ -139,7 +146,7 @@ def serizalize(
     with_relations: bool = False,
     hidden=[],
 ):
-    """ 自动解析对象为 json
+    """自动解析对象为 json
 
     Args:
         obj (_type_): _description_
@@ -151,8 +158,13 @@ def serizalize(
     Returns:
         _type_: _description_
     """
-    if isinstance(obj, (list, tuple, QuerySet)):
-        return [serizalize(item) for item in obj]
+    # print("尝试解析:",type(obj))
+    if isinstance(obj, (str, int, float,type(None))):
+        return obj
+    
+    if isinstance(obj, (list, tuple, QuerySet,set)):
+        return [serizalize(item,with_foreign_keys=False,with_relations=False) for item in obj]
+    
     if isinstance(obj, models.Model):
         return ModelSerozalizer(
             obj,
@@ -161,4 +173,6 @@ def serizalize(
             with_relations=with_relations,
             hidden=hidden,
         ).serialize()
-    return Serozalizer(obj, extra=extra, hidden=hidden).serialize()
+    if isinstance(obj, (object, dict)):
+        return Serozalizer(obj, extra=extra, hidden=hidden).serialize()
+    return str(obj)

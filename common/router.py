@@ -1,5 +1,8 @@
+import traceback
 from typing import Any, Callable
 from django.http import HttpRequest, HttpResponse, JsonResponse
+
+from common.response import ApiJsonResponse
 
 
 
@@ -55,24 +58,25 @@ class Router:
                 def get_response(request=request):
                     resp = route(request)
                     if isinstance(resp, (dict,list)):
-                        return JsonResponse(resp)
+                        return ApiJsonResponse.success(resp)
                     if isinstance(resp, str):
                         return HttpResponse(content=resp)
-                    if isinstance(resp, (HttpResponse, JsonResponse)):
+                    if isinstance(resp, (HttpResponse, JsonResponse,ApiJsonResponse)):
                         return resp
                     raise ValueError("Invalid response type")
 
-                for sort,middleware in self.middlewares:
+                for _,middleware in self.middlewares:
                     get_response = middleware(get_response)
                 if callable(get_response):
                     response = get_response(request=request)
                     return response
                 return JsonResponse(status=400, data={"message": "Invalid middleware"})
             except Exception as e:
-                print(e)
-                return JsonResponse(status=500, data={"message": str(e)})
+                trace = traceback.format_exc()
+                print(trace)
+                return ApiJsonResponse.error_response(e)
             
-        return HttpResponse(status=404, content="Not Found")
+        return ApiJsonResponse.error("Not Found",404)
 
     def route(self, path, method):
         def wrapper(handler):
@@ -90,10 +94,9 @@ class Router:
         """
         self.middlewares.append((sort,middleware))
         self.sort_middleware()
-        print(self.middlewares)
 
     def sort_middleware(self):
-        """ middleware 是一个闭包不停套壳的过程，所以越靠后的实际上优先级越高
+        """ middleware 是一个闭包不停套壳的过程，所以越靠后的实际上优先级越高，在最外层也就是最先执行
         """
         self.middlewares = sorted(self.middlewares,key=lambda x:x[0],reverse=True)
 
@@ -111,3 +114,13 @@ class Router:
 
     def patch(self, path):
         return self.route(path, "PATCH")
+    
+    def options(self, path):
+        return self.route(path, "OPTIONS")
+    
+    def register(self,path):
+        def wrapper(cls):
+            print("register:",cls,self)
+            cls().register(router=self,path=path) if hasattr(cls,"register") else None
+            return cls
+        return wrapper
