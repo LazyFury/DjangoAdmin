@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 
@@ -27,7 +27,7 @@ class Route:
 
 
 class Router:
-    middlewares: list = []
+    middlewares: list[(int,Callable[[Callable],Callable])] = []
     prefix: str = ""
 
     def __init__(self, prefix=""):
@@ -54,7 +54,7 @@ class Router:
             try:
                 def get_response(request=request):
                     resp = route(request)
-                    if isinstance(resp, dict):
+                    if isinstance(resp, (dict,list)):
                         return JsonResponse(resp)
                     if isinstance(resp, str):
                         return HttpResponse(content=resp)
@@ -62,13 +62,14 @@ class Router:
                         return resp
                     raise ValueError("Invalid response type")
 
-                for middleware in self.middlewares:
-                    get_response = middleware(request, get_response)
+                for sort,middleware in self.middlewares:
+                    get_response = middleware(get_response)
                 if callable(get_response):
                     response = get_response(request=request)
                     return response
                 return JsonResponse(status=400, data={"message": "Invalid middleware"})
             except Exception as e:
+                print(e)
                 return JsonResponse(status=500, data={"message": str(e)})
             
         return HttpResponse(status=404, content="Not Found")
@@ -80,8 +81,21 @@ class Router:
 
         return wrapper
 
-    def use(self, middleware):
-        self.middlewares.append(middleware)
+    def use(self, middleware:Callable[[Callable],Callable],sort=99):
+        """  添加中间件
+
+        Args:
+            middleware (Callable[[Callable],Callable]): _description_
+            sort (int, optional): _description_. Defaults to 99. 小于 99 先执行，否则后执行
+        """
+        self.middlewares.append((sort,middleware))
+        self.sort_middleware()
+        print(self.middlewares)
+
+    def sort_middleware(self):
+        """ middleware 是一个闭包不停套壳的过程，所以越靠后的实际上优先级越高
+        """
+        self.middlewares = sorted(self.middlewares,key=lambda x:x[0],reverse=True)
 
     def get(self, path):
         return self.route(path, "GET")

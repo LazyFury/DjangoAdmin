@@ -1,0 +1,164 @@
+from typing import Any, Callable
+from webbrowser import get
+from django.db import models
+from django.db.models.fields.files import ImageFieldFile
+from django.db.models.query import QuerySet
+from common.wrapped import Wrapped
+from django.utils import timezone
+from datetime import datetime
+
+
+class Serozalizer:
+    extra: dict[str, Callable[[Any], Any]]
+    hidden: list[str]
+
+    def __init__(self, obj, extra: dict[str, Callable[[Any], Any]] = None, hidden=[]):
+        """尝试自动遍历 obj 并转换为 json
+
+        Args:
+            obj (_type_): _description_
+            extra (dict[str, Callable[[Any], Any]], optional): _description_. Defaults to None.
+        """
+        self.obj = obj
+        self.extra = extra or {}
+        self.hidden = hidden
+
+    def convert(self, obj):
+        # print(obj,type(obj))
+        if isinstance(obj, (int, float, str)):
+            return obj
+        if isinstance(obj, ImageFieldFile):
+            return obj.url if obj else None
+        if isinstance(obj,datetime):
+            return timezone.localtime(obj).strftime("%Y-%m-%d %H:%M:%S")
+        if isinstance(obj, dict):
+            return self._convert_dict(obj)
+        if isinstance(obj, (list, tuple)):
+            return self._convert_list(obj)
+        if obj is None:
+            return None
+        if isinstance(obj, object):
+            return str(obj)
+        return None
+
+    def _convert_dict(self, obj):
+        return {key: self.convert(value) for key, value in obj.items()}
+
+    def _convert_list(self, obj):
+        return [self.convert(item) for item in obj]
+
+    def serialize(self):
+        data =  dict(self._serizlize())
+        for key in self.hidden:
+            data.pop(key,None)
+        return data
+
+    def _serizlize(self):
+        for field in self.fields():
+            yield (
+                field,
+                self.convert(getattr(self.obj, field))
+                if hasattr(self.obj, field)
+                else None,
+            )
+
+        for field, func in self.extra.items():
+            yield field, self.convert(func(self.obj))
+
+        for method in self.methods():
+            yield method.func.__name__, self.convert(method(self.obj))
+
+    def fields(self):
+        for field in dir(self.obj):
+            if not field.startswith("_"):
+                yield field
+
+    def methods(self):
+        for method in dir(self.obj):
+            if not method.startswith("_"):
+                if hasattr(self.obj, method) and isinstance(
+                    getattr(self.obj, method), Wrapped
+                ):
+                    wrapped: Wrapped = getattr(self.obj, method)
+                    if wrapped.ext.get("json", True):
+                        yield wrapped
+
+
+class ModelSerozalizer(Serozalizer):
+    obj: models.Model
+    with_foreign_keys: bool
+    with_relations: bool
+
+    def __init__(
+        self,
+        obj,
+        extra: dict[str, Callable[[Any], Any]] = None,
+        with_foreign_keys: bool = True,
+        with_relations: bool = True,
+        **kwargs,
+    ):
+        """尝试自动遍历 Model 并转换为 json
+
+        Args:
+            obj (_type_): _description_
+            extra (dict[str, Callable[[Any], Any]], optional): _description_. Defaults to None.
+            with_foreign_keys (bool, optional): _description_. Defaults to True.
+            with_relations (bool, optional): _description_. Defaults to True.
+        """
+        super().__init__(obj, extra, **kwargs)
+        self.with_foreign_keys = with_foreign_keys
+        self.with_relations = with_relations
+
+    def fields(self):
+        for field in self.obj._meta.get_fields():
+            yield field.name
+
+    def relations(self):
+        for field in self.obj._meta.get_fields():
+            if hasattr(self.obj, field.name) and field.is_relation:
+                yield field
+
+    def _serizlize(self):
+        yield from super()._serizlize()
+
+        for relation in self.relations():
+            if relation.many_to_one and self.with_foreign_keys:
+                yield relation.name, serizalize(getattr(self.obj, relation.name))
+            if relation.one_to_many and self.with_relations:
+                yield relation.name, serizalize(getattr(self.obj, relation.name).all())
+            if relation.many_to_many and self.with_relations:
+                yield relation.name, serizalize(getattr(self.obj, relation.name).all())
+            if relation.one_to_one and self.with_relations:
+                yield relation.name, serizalize(getattr(self.obj, relation.name))
+
+
+def serizalize(
+    obj,
+    extra: dict[str, Callable[[Any], Any]] = None,
+    with_foreign_keys: bool = True,
+    with_relations: bool = False,
+    hidden=[],
+):
+    """ 自动解析对象为 json
+
+    Args:
+        obj (_type_): _description_
+        extra (dict[str, Callable[[Any], Any]], optional): _description_. Defaults to None.
+        with_foreign_keys (bool, optional): _description_. Defaults to True.
+        with_relations (bool, optional): _description_. Defaults to False.
+        hidden (list, optional): _description_. Defaults to [].
+
+    Returns:
+        _type_: _description_
+    """
+    if isinstance(obj, (list, tuple, QuerySet)):
+        return [serizalize(item) for item in obj]
+    if isinstance(obj, models.Model):
+        return ModelSerozalizer(
+            obj,
+            extra=extra,
+            with_foreign_keys=with_foreign_keys,
+            with_relations=with_relations,
+            hidden=hidden,
+        ).serialize()
+    return Serozalizer(obj, extra=extra, hidden=hidden).serialize()
