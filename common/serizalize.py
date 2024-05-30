@@ -1,5 +1,4 @@
 from typing import Any, Callable
-from webbrowser import get
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.db.models.query import QuerySet

@@ -1,7 +1,6 @@
-from typing import Callable
 from django.db.models.base import Model as Model
-from django.http import HttpRequest, JsonResponse
-from common.api import Api, PreUserApi, per_user_api_middleware
+from django.http import JsonResponse
+from common.api import Api
 from common.middleware import clear_context_each_request, cors_middleware, get_user_middleware, request_aspects
 from common.router import Router
 from common.serizalize import ModelSerozalizer, serizalize
@@ -17,7 +16,6 @@ api.use(cors_middleware)  # add cors middleware
 api.use(clear_context_each_request,sort=0) # 清理每次请求的上下文
 api.use(request_aspects,sort=0) # 请求切面
 api.use(get_user_middleware,sort=1) # 获取用户信息
-api.use(per_user_api_middleware,sort=2)
 
 Api(User,hidden=['password'],extra={
     "groups": lambda obj: [serizalize(group,with_relations=True,with_foreign_keys=True) for group in obj.groups.all()],

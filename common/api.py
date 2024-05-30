@@ -185,9 +185,20 @@ class PreUserApi(Api):
     def extra_search_condition(self, request: HttpRequest):
         return {self.forgen_user_field: request.user.id}
     
-def per_user_api_middleware(get_response):
-    def middleware(request: HttpRequest):
-        if request.user.is_authenticated:
-            return get_response(request)
-        return ApiJsonResponse.error("Need Login",401)
-    return middleware
+    def register(self, router: Router, path=None):
+        if not path:
+            path = f"/{self.model._meta.model_name}"
+        print("register path:", path)
+        router.get(f"{path}.detail")(per_user_api_wrapper(self.get))
+        router.get(f"{path}.list")(per_user_api_wrapper(self.list))
+        router.post(f"{path}.create")(per_user_api_wrapper(self.create))
+        router.put(f"{path}.update")(per_user_api_wrapper(self.update))
+        router.delete(f"{path}.delete")(per_user_api_wrapper(self.delete))
+        return self
+    
+def per_user_api_wrapper(func):
+    def wrapper(request: HttpRequest):
+        if not request.user.is_authenticated:
+            return ApiJsonResponse.error("Not Authenticated",401)
+        return func(request)
+    return wrapper
