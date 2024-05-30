@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <RouterView></RouterView>
@@ -24,14 +23,14 @@ export default {
     };
   },
   setup() {
-    
+
   },
   watch: {},
   computed: {},
   methods: {},
   created() { },
   mounted() {
-    
+
   }
 };
 </script>

@@ -32,10 +32,14 @@ class ApiJsonResponse(HttpResponse):
         )
 
     @staticmethod
-    def error(message, code=400, http_code=400, data=None):
+    def error(message, code=400, http_code=200, data=None):
         return ApiJsonResponse(ApiJsonResponse.Data(data, message, False, code)).status(
             http_code
         )
+    
+    @staticmethod
+    def is_valid_http_code(http_code):
+        return http_code >= 100 and http_code < 600
 
     @staticmethod
     def error_response(error: ApiError):
@@ -43,4 +47,4 @@ class ApiJsonResponse(HttpResponse):
             error = ApiBadRequestError(str(error))
         return ApiJsonResponse(
             ApiJsonResponse.Data(None, error.message, False, error.code)
-        ).status(error.code)
+        ).status(error.code if ApiJsonResponse.is_valid_http_code(error.code) else 400)
