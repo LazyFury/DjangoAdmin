@@ -1,18 +1,31 @@
 import datetime
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 
+from app import settings
+from common.exception import ApiNotAuthorizedError
+from common.response import ApiJsonResponse
 from common.utils.contextholder import ContextHolder
+
+def modify_cors_response(response):
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response["Access-Control-Allow-Headers"] = (
+        "Content-Type, X-CSRFToken, Authorization,TOKEN"
+    )
+    response["Access-Control-Max-Age"] = "86400"
+    return response
+
+
 
 def cors_middleware(get_response):
     def wrapper(request:HttpRequest):
+        print("cors_middleware")
+        if request.method == "OPTIONS":
+            response = HttpResponse()
+            return modify_cors_response(response)
+
         response = get_response(request)
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response["Access-Control-Allow-Headers"] = (
-            "Content-Type, X-CSRFToken, Authorization,TOKEN"
-        )
-        response["Access-Control-Max-Age"] = "86400"
-        return response
+        return modify_cors_response(response)
 
     return wrapper
 
@@ -56,6 +69,21 @@ def request_aspects(get_response):
         print(">>========request Start:",datetime.datetime.now(),"Url:",request.path,"Method:",request.method) 
         response = get_response(request)
         print(">>========request End.",datetime.datetime.now())
+        return response
+
+    return wrapper
+
+def auth_middleware(get_response):
+    """ auth_middleware
+
+    Args:
+        get_response (_type_): _description_
+    """
+    def wrapper(request):
+        print("auth_middleware")
+        if not request.user.is_authenticated and request.path not in settings.AUTH_WHITE_LIST:
+            return ApiJsonResponse.error_response(ApiNotAuthorizedError())
+        response = get_response(request)
         return response
 
     return wrapper

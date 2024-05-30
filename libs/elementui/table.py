@@ -4,7 +4,7 @@ from libs.elementui.form import ElForm
 
 
 class ElTableColumn(ElWidget):
-    def __init__(self, prop: str, label: str, type: str, props: dict, **kwargs):
+    def __init__(self, prop: str, label: str, type: str = "", props: dict = {}, **kwargs):
         self.prop = prop
         self.label = label
         self.type = type

@@ -15,9 +15,9 @@
             </div>
             <ElDivider class="!mb-4 !mt-2"></ElDivider>
             <div v-if="searchFormFields && searchFormFields.length > 0">
-                <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e=>{}" class="mb-2">
-                    <ElFormItem v-for="field in searchFormFields" :key="field.name" :label="field.label" :prop="field.name"
-                        :class="[]" :style="{ 'min-width': field.width || '100px' }">
+                <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-2">
+                    <ElFormItem v-for="field in searchFormFields" :key="field.name" :label="field.label"
+                        :prop="field.name" :class="[]" :style="{ 'min-width': field.width || '100px' }">
                         <FormItem :field="field" v-model="searchForm[field.name]"></FormItem>
                     </ElFormItem>
                     <ElFormItem>
@@ -82,7 +82,8 @@
                             <ElSwitch v-if="column.type == 'switch'" v-model="row[column.key]" inactive-color="#ff4949"
                                 active-text="" inactive-text="" disabled></ElSwitch>
                             <!-- checkbox  -->
-                            <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
+                            <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.key]" disabled>
+                            </ElCheckbox>
 
                             <!-- select  -->
                             <ElSelect v-if="column.type == 'select'" v-model="row[column.key]"
@@ -91,7 +92,8 @@
                                     :value="option.value"></ElOption>
                             </ElSelect>
                             <!-- icon  -->
-                            <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :class="[column.className]"></Icon>
+                            <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :class="[column.className]">
+                            </Icon>
                             <!-- image  -->
                             <ElImage v-if="column.type == 'image'" :src="$img(row[column.key])" fit="cover"
                                 :preview-teleported="true"
@@ -124,10 +126,10 @@
             </div>
             <!-- pagination  -->
             <div class="flex mt-2">
-                <ElPagination small layout="total,sizes, prev, pager, next, jumper" background :hide-on-single-page="false"
-                    v-model:current-page="pagination.currentPage" v-model:page-size="pagination.pageSize"
-                    :page-sizes="[5, 10, 20, 50, 100]" :total="pagination.total" @current-change="handleCurrentPageChange"
-                    @size-change="handlePageSizeChange"></ElPagination>
+                <ElPagination small layout="total,sizes, prev, pager, next, jumper" background
+                    :hide-on-single-page="false" v-model:current-page="pagination.currentPage"
+                    v-model:page-size="pagination.pageSize" :page-sizes="[5, 10, 20, 50, 100]" :total="pagination.total"
+                    @current-change="handleCurrentPageChange" @size-change="handlePageSizeChange"></ElPagination>
             </div>
         </ElCard>
 
@@ -152,7 +154,7 @@ import Form from '@/views/components/Form.vue'
 import FormItem from './components/FormItem.vue';
 
 export default {
-    components: { ElPagination, Form,FormItem },
+    components: { ElPagination, Form, FormItem },
     props: {},
     data() {
         return {
@@ -161,7 +163,7 @@ export default {
             pagination: {
                 currentPage: 1,
                 pageSize: this.$route.meta?.table?.pageSize || 10,
-                total: 1000
+                total: 0
             },
             tableData: [],
             loading: false,

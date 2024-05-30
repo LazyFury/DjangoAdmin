@@ -7,10 +7,9 @@ from common.exception import ApiError
 from common.response import ApiJsonResponse
 
 
-
 class Route:
     def __init__(self, path, method, handler):
-        """ __init__ method for Route
+        """__init__ method for Route
 
         Args:
             path (_type_): _description_
@@ -32,11 +31,11 @@ class Route:
 
 
 class Router:
-    middlewares: list[tuple[int,Callable[[Callable],Callable]]] = []
+    middlewares: list[tuple[int, Callable[[Callable], Callable]]] = []
     prefix: str = ""
 
     def __init__(self, prefix=""):
-        """ __init__ method for Router
+        """__init__ method for Router
 
         Args:
             prefix (str, optional): _description_. Defaults to "".
@@ -54,33 +53,33 @@ class Router:
         return None
 
     def handle(self, request: HttpRequest):
-        route = self.match(request.path, request.method)
-        if route:
-            try:
-                def get_response(request=request):
+        try:
+
+            def get_response(request=request):
+                route = self.match(request.path, request.method)
+                if route:
                     resp = route(request)
-                    if isinstance(resp, (dict,list)):
+                    if isinstance(resp, (dict, list,object)):
                         return ApiJsonResponse.success(resp)
-                    if isinstance(resp, str):
+                    if isinstance(resp, (str)):
                         return HttpResponse(content=resp)
-                    if isinstance(resp, (HttpResponse, JsonResponse,ApiJsonResponse)):
+                    if isinstance(resp, (HttpResponse, JsonResponse, ApiJsonResponse)):
                         return resp
                     raise ValueError("Invalid response type")
+                return ApiJsonResponse.error_response(ApiError("Not Found", 404))
 
-                for _,middleware in self.middlewares:
-                    get_response = middleware(get_response)
-                if callable(get_response):
-                    response = get_response(request=request)
-                    return response
-                return JsonResponse(status=400, data={"message": "Invalid middleware"})
-            except Exception as e:
-                trace = traceback.format_exc()
-                print(trace)
-                if isinstance(e,ApiError):
-                    return ApiJsonResponse.error_response(e)
-                return ApiJsonResponse.error_response(ApiError(str(e),500))
-            
-        return ApiJsonResponse.error("Not Found",404)
+            for _, middleware in self.middlewares:
+                get_response = middleware(get_response)
+            if callable(get_response):
+                response = get_response(request=request)
+                return response
+            return JsonResponse(status=400, data={"message": "Invalid middleware"})
+        except Exception as e:
+            trace = traceback.format_exc()
+            print(trace)
+            if isinstance(e, ApiError):
+                return ApiJsonResponse.error_response(e)
+            return ApiJsonResponse.error_response(ApiError(str(e), 500))
 
     def route(self, path, method):
         def wrapper(handler):
@@ -89,20 +88,19 @@ class Router:
 
         return wrapper
 
-    def use(self, middleware:Callable[[Callable],Callable],sort=99):
-        """  添加中间件
+    def use(self, middleware: Callable[[Callable], Callable], sort=99):
+        """添加中间件
 
         Args:
             middleware (Callable[[Callable],Callable]): _description_
             sort (int, optional): _description_. Defaults to 99. 小于 99 先执行，否则后执行
         """
-        self.middlewares.append((sort,middleware))
+        self.middlewares.append((sort, middleware))
         self.sort_middleware()
 
     def sort_middleware(self):
-        """ middleware 是一个闭包不停套壳的过程，所以越靠后的实际上优先级越高，在最外层也就是最先执行
-        """
-        self.middlewares = sorted(self.middlewares,key=lambda x:x[0],reverse=True)
+        """middleware 是一个闭包不停套壳的过程，所以越靠后的实际上优先级越高，在最外层也就是最先执行"""
+        self.middlewares = sorted(self.middlewares, key=lambda x: x[0], reverse=True)
 
     def get(self, path):
         return self.route(path, "GET")
@@ -118,13 +116,14 @@ class Router:
 
     def patch(self, path):
         return self.route(path, "PATCH")
-    
+
     def options(self, path):
         return self.route(path, "OPTIONS")
-    
-    def register(self,path):
+
+    def register(self, path):
         def wrapper(cls):
-            print("register:",cls,self)
-            cls().register(router=self,path=path) if hasattr(cls,"register") else None
+            print("register:", cls, self)
+            cls().register(router=self, path=path) if hasattr(cls, "register") else None
             return cls
+
         return wrapper

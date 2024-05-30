@@ -1,42 +1,47 @@
 from django.http import HttpRequest
 
-from common import serizalize
-from common.response import ApiJsonResponse
 from libs.elementui.menu import ElMenu, ElMenuItem
+from libs.elementui.table import ElTable, ElTableColumn
 from . import api
 
 
 @api.get("/menus")
 def menus(request: HttpRequest):
-    return ApiJsonResponse.success((ElMenu([
-        ElMenuItem(
-            title="Dashboard",
-            key="dashboard",
-            icon="el-icon-s-home",
-            path="/dashboard",
-            component="dashboard",
-            children=[
-                ElMenuItem(
-                    title="Analysis",
-                    key="analysis",
-                    icon="el-icon-s-data",
-                    path="/analysis",
-                    component="analysis",
-                ),
-                ElMenuItem(
-                    title="Monitor",
-                    key="monitor",
-                    icon="el-icon-s-operation",
-                    path="/monitor",
-                    component="monitor",
-                ),
-                ElMenuItem(
-                    title="Workplace",
-                    key="workplace",
-                    icon="el-icon-s-platform",
-                    path="/workplace",
-                    component="workplace",
-                ),
-            ]
-        )
-    ])))
+    return ElMenu(
+        [
+            ElMenuItem(
+                title="Dashboard",
+                key="overview",
+                icon="ant-design:dashboard-outlined",
+                path="/overview",
+                component="HomeView",
+            ),
+            ElMenuItem(
+                title="用户管理",
+                key="user",
+                icon="ant-design:user-outline",
+                path="/user",
+                component="user",
+                children=[
+                    ElMenuItem(
+                        title="用户列表",
+                        key="user-list",
+                        path="/user/user-list",
+                        component="TableView",
+                        table=ElTable(
+                            title="用户列表",
+                            columns=[
+                                ElTableColumn(
+                                    prop="username",
+                                    label="用户名",
+                                    width="180",
+                                    fixed="left",
+                                )
+                            ],
+                        ),
+                    ),
+                ],
+            ),
+        ]
+    )
+

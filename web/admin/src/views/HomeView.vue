@@ -38,7 +38,7 @@ onMounted(()=>{
 
         </ElCard>
       </div>
-      <div class="xl:w-240px sm:w-full flex flex-col gap-2">
+      <div class="xl:w-240px w-full  flex flex-col gap-2 md:grid md:grid-cols-2 xl:grid-cols-1">
         <ElCard class="min-h-100" shadow="never">
           hello
         </ElCard>

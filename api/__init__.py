@@ -11,7 +11,6 @@ from core.models import User
 
 api = Router("/api/v1")
 
-
 api.use(cors_middleware)  # add cors middleware
 api.use(clear_context_each_request,sort=0) # 清理每次请求的上下文
 api.use(request_aspects,sort=0) # 请求切面

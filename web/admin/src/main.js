@@ -129,13 +129,14 @@ const registerRoute = (menu) => {
 request.get('/menus',{
     noMsgAlert:true
 }).then(async res => {
-    let menus = res.data.data?.menus || []
+    let menus = res.data.data || []
     for (let i = 0; i < menus.length; i++) {
         let el = menus[i]
         registerRoute(el)
     }
     
 }).finally(()=>{
+    console.log("router",router.getRoutes())
     app.use(router)
     app.mount('#app')
 })

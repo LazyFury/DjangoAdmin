@@ -12,7 +12,7 @@ const translateStore = useTranslateStore()
 const profileStore = useProfileStore()
 onMounted(()=>{
     request.get('/menus').then(res=>{
-        menus.value = (res.data.data?.menus || []).filter(el=>el.hidden_on_menu !== true).map(el=>{
+        menus.value = (res.data.data || []).filter(el=>el.hidden_on_menu !== true).map(el=>{
             if(el.children){
                 el.children = el.children.filter(el=>el.hidden_on_menu !== true)
             }
