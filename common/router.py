@@ -2,6 +2,7 @@ import traceback
 from typing import Any, Callable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
+from common.exception import ApiError
 from common.response import ApiJsonResponse
 
 
@@ -30,7 +31,7 @@ class Route:
 
 
 class Router:
-    middlewares: list[(int,Callable[[Callable],Callable])] = []
+    middlewares: list[tuple[int,Callable[[Callable],Callable]]] = []
     prefix: str = ""
 
     def __init__(self, prefix=""):
@@ -74,7 +75,9 @@ class Router:
             except Exception as e:
                 trace = traceback.format_exc()
                 print(trace)
-                return ApiJsonResponse.error_response(e)
+                if isinstance(e,ApiError):
+                    return ApiJsonResponse.error_response(e)
+                return ApiJsonResponse.error_response(ApiError(str(e),500))
             
         return ApiJsonResponse.error("Not Found",404)
 

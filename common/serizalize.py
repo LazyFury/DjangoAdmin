@@ -11,7 +11,9 @@ class Serozalizer:
     extra: dict[str, Callable[[Any], Any]]
     hidden: list[str]
 
-    def __init__(self, obj, extra: dict[str, Callable[[Any], Any]] = None, hidden=[]):
+   
+
+    def __init__(self, obj, extra: dict[str, Callable[[Any], Any]] = {}, hidden=[]):
         """尝试自动遍历 obj 并转换为 json
 
         Args:
@@ -91,7 +93,7 @@ class ModelSerozalizer(Serozalizer):
     def __init__(
         self,
         obj,
-        extra: dict[str, Callable[[Any], Any]] = None,
+        extra: dict[str, Callable[[Any], Any]] = {},
         with_foreign_keys: bool = True,
         with_relations: bool = False,
         **kwargs,
@@ -140,7 +142,7 @@ class ModelSerozalizer(Serozalizer):
 
 def serizalize(
     obj,
-    extra: dict[str, Callable[[Any], Any]] = None,
+    extra: dict[str, Callable[[Any], Any]] = {},
     with_foreign_keys: bool = True,
     with_relations: bool = False,
     hidden=[],
