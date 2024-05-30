@@ -1,5 +1,6 @@
 from django.http import HttpRequest
 
+from libs.elementui.base import ElApis
 from libs.elementui.menu import ElMenu, ElMenuItem
 from libs.elementui.table import ElTable, ElTableColumn
 from . import api
@@ -35,13 +36,14 @@ def menus(request: HttpRequest):
                                     prop="username",
                                     label="用户名",
                                     width="180",
-                                    fixed="left",
                                 )
                             ],
+                        ),
+                        api=ElApis(
+                            list="/api/user.list",
                         ),
                     ),
                 ],
             ),
         ]
     )
-

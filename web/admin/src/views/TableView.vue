@@ -72,40 +72,40 @@
                     <!-- id  -->
                     <ElTableColumn label="ID" width="80" prop="id"></ElTableColumn>
 
-                    <ElTableColumn v-for="column in columns" :key="column.key"
-                        :sortable="column.sortable ? 'custom' : false" :label="column.title" :width="column.width">
+                    <ElTableColumn v-for="column in columns" :key="column.prop"
+                        :sortable="column.sortable ? 'custom' : false" :label="column.label" :width="column.width">
                         <template #default="{ row }" v-if="!column.slot">
                             <div :class="[column.className]" v-if="column.type == 'render'">
                                 {{ column.render(row) }}
                             </div>
                             <!-- switch  -->
-                            <ElSwitch v-if="column.type == 'switch'" v-model="row[column.key]" inactive-color="#ff4949"
+                            <ElSwitch v-if="column.type == 'switch'" v-model="row[column.prop]" inactive-color="#ff4949"
                                 active-text="" inactive-text="" disabled></ElSwitch>
                             <!-- checkbox  -->
-                            <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.key]" disabled>
+                            <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.prop]" disabled>
                             </ElCheckbox>
 
                             <!-- select  -->
-                            <ElSelect v-if="column.type == 'select'" v-model="row[column.key]"
+                            <ElSelect v-if="column.type == 'select'" v-model="row[column.prop]"
                                 :placeholder="column.placeholder" clearable>
                                 <ElOption v-for="option in column.options" :key="option.value" :label="option.label"
                                     :value="option.value"></ElOption>
                             </ElSelect>
                             <!-- icon  -->
-                            <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :class="[column.className]">
+                            <Icon v-if="column.type == 'icon'" :icon="row[column.prop]" :class="[column.className]">
                             </Icon>
                             <!-- image  -->
-                            <ElImage v-if="column.type == 'image'" :src="$img(row[column.key])" fit="cover"
+                            <ElImage v-if="column.type == 'image'" :src="$img(row[column.prop])" fit="cover"
                                 :preview-teleported="true"
-                                :preview-src-list="row[column.key] ? [$img(row[column.key])] : []"
+                                :preview-src-list="row[column.prop] ? [$img(row[column.prop])] : []"
                                 style="width: 50px; height: 50px;"></ElImage>
                             <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}
                             </ElTag>
 
                             <!-- link  -->
                             <ElLink type="primary" v-if="column.type == 'link'" :underline="false"
-                                :href="makeUrl(row, column, column.key)" :target="column.url_target || '_self'">
-                                {{ column.prefix }}{{ row[column.key] }}{{ column.suffix }}
+                                :href="makeUrl(row, column, column.prop)" :target="column.url_target || '_self'">
+                                {{ column.prefix }}{{ row[column.prop] }}{{ column.suffix }}
                             </ElLink>
                         </template>
                         <template v-if="column.slot" #default="{ row }">
@@ -173,7 +173,7 @@ export default {
     watch: {},
     computed: {
         api() {
-            return this.meta.api || this.meta.api_url
+            return this.meta.api
         },
         searchFormFields() {
             return this.meta.searchForm?.fields || this.meta.search_form_fields || []
@@ -197,6 +197,7 @@ export default {
             return obj
         },
         columns() {
+            console.log(this.meta)
             let columns = this.meta.table?.columns || this.meta.columns || []
             if (typeof columns === 'string') {
                 columns = JSON.parse(columns)
@@ -309,7 +310,7 @@ export default {
         load() {
             this.loading = true
             request({
-                url: this.api,
+                url: this.api.list,
                 method: 'get',
                 params: {
                     page: this.pagination.currentPage,

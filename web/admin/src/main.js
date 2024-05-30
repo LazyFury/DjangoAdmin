@@ -102,7 +102,7 @@ const registerRoute = (menu) => {
                 title:menu.title,
                 key:menu.key,
                 api:menu.api || "",
-                ...(menu.meta || {})
+                ...(menu || {})
             }
         }
         if(!menu.parent){
