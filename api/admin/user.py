@@ -1,5 +1,6 @@
 import json
 from common.utils.contextholder import ContextHolder
+from core.models import UserToken
 from core.services.auth import AuthService
 from . import api
 
@@ -21,4 +22,5 @@ def login(request):
     request.user = user
     return {
         "user":user,
+        "token":UserToken.get_fresh_token_by_user(user,request=request).token,
     }

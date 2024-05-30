@@ -45,14 +45,18 @@ class AuthService:
     def authenticate(
         self, email: str = "", phone: str = "", username: str = "", password: str = ""
     ) -> User:
+        assert email or phone or username,"必须传入用户唯一标识或emial或phone"
+        
         query = User.objects.filter()
         if email:
-            query.filter(email=email)
+            query = query.filter(email=email)
         if phone:
-            query.filter(phone=phone)
+            query = query.filter(phone=phone)
         if username:
-            query.filter(username=username)
+            query = query.filter(username=username)
+
         user = query.first()
+        print(query.query)
         assert user, "User Not Found."
         if user.check_password(password):
             return user
@@ -66,6 +70,8 @@ class AuthService:
         password: str = "",
         **kwargs,
     ):
+        assert email or phone or username,"必须传入用户唯一标识或emial或phone"
+        
         if email:
             valid, msg = self.validate_email(email)
             if not valid:
@@ -80,8 +86,6 @@ class AuthService:
             valid, msg = self.validate_email(username)
             if not valid:
                 raise ApiError(msg)
-            
-        assert email or phone or username,"必须传入用户唯一标识或emial或phone"
 
         password = make_password(password)
         user = User.objects.create(

@@ -67,7 +67,7 @@ class Serozalizer:
             yield method.func.__name__, self.convert(method(self.obj))
 
     def fields(self):
-        for field in vars(self.obj):
+        for field in vars(self.obj) if hasattr(self.obj,"__dict__") else dir(self.obj):
             if not field.startswith("_"):
                 yield field
 
