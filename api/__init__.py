@@ -18,23 +18,27 @@ api.use(request_aspects,sort=0) # 请求切面
 api.use(get_user_middleware,sort=1) # 获取用户信息
 
 Api(User,hidden=['password'],extra={
-    "groups": lambda obj: [serizalize(group,with_relations=True,with_foreign_keys=True) for group in obj.groups.all()],
+    "groups": lambda obj: [serizalize(group,with_relations=True,with_foreign_keys=True) for group in obj.groups.all()], # type: ignore
 }).register(api)
 
-Api(Group,hidden=['permissions']).register(api)
+
+# 直接注册 Group 和 Permission
+Api(Group).register(api)
 Api(Permission).register(api)
 
 @api.register("/groups")
 class GroupApi(Api):
+    """ 注解注册 crud 接口
+
+    Args:
+        Api (_type_): _description_
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(Group, *args, **kwargs)
 
 @api.get("/hello")
 def hello(request):
-    user:User = ContextHolder.get_context_kv_pre_request(request,"user")
-    ContextHolder.set_context_kv_pre_request(request, "count", 1)
-    # print(ContextHolder.get_context())
-
+    user:User = ContextHolder.get_context_kv_pre_request(request,"user") # type: ignore
     return JsonResponse(
         {
             "message": "Hello, World!",

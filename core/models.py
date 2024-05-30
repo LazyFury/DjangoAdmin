@@ -5,7 +5,7 @@ from common.wrapped import jsonGetter
 
 # Create your models here.
 
-class User(AbstractUser):
+class User(AbstractUser,models.Model):
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
     nickname = models.CharField(max_length=30, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)

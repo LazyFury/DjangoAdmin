@@ -1,7 +1,8 @@
-from typing import Callable
+from typing import Any, Callable
 from django.db import models
 from django.http import HttpRequest
 from django.db.models.query import QuerySet
+from django.contrib.auth.models import AbstractUser
 
 from common import serizalize
 from common.exception import ApiNotFoundError
@@ -24,13 +25,13 @@ class Api:
     get_list_params: Callable[[HttpRequest], dict]
     get_create_params: Callable[[HttpRequest], dict]
     get_update_params: Callable[[HttpRequest], dict]
-    extra: dict[str, Callable[[models.Model], dict]]
+    extra: dict[str, Callable[[models.Model], Any]]
     hidden: list[str]
     config: Config
 
     def __init__(
         self,
-        model: models.Model,
+        model: models.base.ModelBase,
         get_list_params: Callable[[HttpRequest], dict] = lambda request: {
             **request.GET.dict(),
         },
@@ -40,11 +41,11 @@ class Api:
         get_update_params: Callable[[HttpRequest], dict] = lambda request: {
             **request.POST.dict()
         },
-        extra: dict[str, Callable[[models.Model], dict]] = {},
+        extra: dict[str, Callable[[models.Model], Any]] = {},
         config: Config = Config(),
         hidden: list[str] = [],
     ):
-        self.model = model
+        self.model = model # type: ignore pylance 检测类型，数据模型总是 ModelBase，实际上是 Model，而且 ModelBase 也没有 orm 方法
         self.get_list_params = get_list_params
         self.get_create_params = get_create_params
         self.get_update_params = get_update_params
@@ -79,7 +80,7 @@ class Api:
             )
         raise ApiNotFoundError()
 
-    def list_order_by(self, query: QuerySet, orders: str):
+    def list_order_by(self, query: QuerySet, orders: list[str]):
         for order in orders:
             key, order = order.split("__")
             if order == "desc":
@@ -172,18 +173,22 @@ class Api:
 
 
 class ReadOnlyApi(Api):
-    def __init__(self, model: models.Model, **kwargs):
+    def __init__(self, model: models.base.ModelBase, **kwargs):
         super().__init__(model, config=Api.Config(enable_create=False, enable_update=False, enable_delete=False), **kwargs)
 
 class PreUserApi(Api):
     forgen_user_field:str
 
-    def __init__(self, model: models.Model, forgen_user_field="user_id", **kwargs):
+    def __init__(self, model: models.base.ModelBase, forgen_user_field="user_id", **kwargs):
         super().__init__(model, **kwargs)
         self.forgen_user_field = forgen_user_field
 
     def extra_search_condition(self, request: HttpRequest):
-        return {self.forgen_user_field: request.user.id}
+        user = request.user
+        if not user.is_authenticated:
+            raise ApiNotFoundError("Not Authenticated")
+        assert isinstance(user,AbstractUser)
+        return {self.forgen_user_field:user.pk}
     
     def register(self, router: Router, path=None):
         if not path:
