@@ -57,7 +57,7 @@ def hello(request):
                     ] if user else None,
                 },
                 hidden=["password"],
-            ).serialize() if user else None,
+            ).serialize() if user and isinstance(user,User) else None,
             "count": ContextHolder.get_context_kv_pre_request(request, "count"),
         }
     )

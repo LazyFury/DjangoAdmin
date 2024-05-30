@@ -45,6 +45,17 @@ class Api:
         config: Config = Config(),
         hidden: list[str] = [],
     ):
+        """ __init__ method for Api
+
+        Args:
+            model (models.base.ModelBase): _description_ 数据模型
+            get_list_params (_type_, optional): _description_. Defaults to lambdarequest:{ **request.GET.dict(), }.
+            get_create_params (_type_, optional): _description_. Defaults to lambdarequest:{ **request.POST.dict() }.
+            get_update_params (_type_, optional): _description_. Defaults to lambdarequest:{ **request.POST.dict() }.
+            extra (dict[str, Callable[[models.Model], Any]], optional): _description_. Defaults to {}.
+            config (Config, optional): _description_. Defaults to Config().
+            hidden (list[str], optional): _description_. Defaults to [].
+        """
         self.model = model # type: ignore pylance 检测类型，数据模型总是 ModelBase，实际上是 Model，而且 ModelBase 也没有 orm 方法
         self.get_list_params = get_list_params
         self.get_create_params = get_create_params
