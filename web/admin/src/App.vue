@@ -1,10 +1,7 @@
 
 <template>
   <div>
-    <div v-if="loading">
-      loading
-    </div>
-    <RouterView v-else></RouterView>
+    <RouterView></RouterView>
     <div :class="defaultUnoClass"></div>
   </div>
 </template>

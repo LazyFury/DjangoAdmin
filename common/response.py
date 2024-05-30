@@ -1,16 +1,17 @@
-from django.http import JsonResponse
+import json
+from django.http import HttpResponse, JsonResponse
 
 from common import serizalize
 from common.exception import ApiBadRequestError, ApiError
 
 
-class ApiJsonResponse(JsonResponse):
+class ApiJsonResponse(HttpResponse):
     def __init__(self, data, **kwargs):
         if data is not None: 
             if isinstance(data, object):
                 data = serizalize.serizalize(data)
 
-        super().__init__(data, **kwargs)
+        super().__init__(json.dumps(data,sort_keys=False),**kwargs)
         self["content-type"] = "application/json"
 
     def status(self, code):

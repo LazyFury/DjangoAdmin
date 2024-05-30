@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,re_path
 from api import api
+from api.admin import api as admin_api
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    re_path(r"^api/v1/", api.handle),
+    path("admin-plane/", admin.site.urls),
+    re_path(r"^api/", api.handle),
+    re_path(r"^admin/api/", admin_api.handle),
 ]

@@ -1,3 +1,4 @@
+import inspect
 from typing import Any, Callable
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
@@ -25,6 +26,8 @@ class Serozalizer:
         self.hidden = hidden
 
     def convert(self, obj):
+        if obj is None:
+            return None
         # print(obj,type(obj))
         if isinstance(obj, (int, float, str)):
             return obj
@@ -33,25 +36,19 @@ class Serozalizer:
         if isinstance(obj, datetime):
             return timezone.localtime(obj).strftime("%Y-%m-%d %H:%M:%S")
         if isinstance(obj, dict):
-            return self._convert_dict(obj)
+            return {k: self.convert(v) for k, v in obj.items()}
         if isinstance(obj, (list, tuple)):
-            return self._convert_list(obj)
-        if obj is None:
-            return None
+            return [self.convert(item) for item in obj]
         if isinstance(obj, object):
-            return str(obj)
-        return None
-
-    def _convert_dict(self, obj):
-        return {key: self.convert(value) for key, value in obj.items()}
-
-    def _convert_list(self, obj):
-        return [self.convert(item) for item in obj]
+            return serizalize(obj)
+        raise Exception(f"无法解析的类型:{type(obj)}")
 
     def serialize(self):
-        data = dict(self._serizlize())
-        for key in self.hidden:
-            data.pop(key, None)
+        data = {
+            k: v
+            for k, v in self._serizlize()
+            if k not in self.hidden
+        }
         return data
 
     def _serizlize(self):
@@ -70,12 +67,12 @@ class Serozalizer:
             yield method.func.__name__, self.convert(method(self.obj))
 
     def fields(self):
-        for field in dir(self.obj):
+        for field in vars(self.obj):
             if not field.startswith("_"):
                 yield field
 
     def methods(self):
-        for method in dir(self.obj):
+        for method,_ in inspect.getmembers(self.obj):
             if not method.startswith("_"):
                 if hasattr(self.obj, method) and isinstance(
                     getattr(self.obj, method), Wrapped

@@ -1,9 +1,9 @@
 
 const prod = {
     url: {
-        API_URL: 'http://tt.lazyfury.fun/api',
-        BASE_URL: 'https://yourdomain.com',
-        IMG_URL: 'https://yourdomain.com',
+        API_URL: '/api',
+        BASE_URL: '/',
+        IMG_URL: '/',
     }
 }
 
