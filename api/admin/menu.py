@@ -33,14 +33,15 @@ def menus(request: HttpRequest):
                             title="用户列表",
                             columns=[
                                 ElTableColumn(
-                                    prop="username",
-                                    label="用户名",
-                                    width="180",
-                                )
+                                    prop="username", label="用户名", width="180"
+                                ),
+                                ElTableColumn(
+                                    prop="email", label="邮箱", width="180", type="link",url_prefix="mailto:"
+                                ),
                             ],
                         ),
                         api=ElApis(
-                            list="/api/user.list",
+                            list="/user.list",
                         ),
                     ),
                 ],

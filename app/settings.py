@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from better_exceptions.integrations.django import skip_errors_filter
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+DEBUG = True
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -139,3 +141,41 @@ AUTH_WHITE_LIST = [
     "/admin/api/logout",
     "/admin/api/menus",
 ]
+
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            # "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
+            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            "datefmt": DATETIME_FORMAT,
+        },
+    },
+    "filters": {
+        "skip_errors": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": skip_errors_filter,
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            # without the 'filters' key, Django will log errors twice:
+            # one time from better-exceptions and one time from Django.
+            # with the 'skip_errors' filter, we remove the repeat log
+            # from Django, which is unformatted.
+            "filters": ["skip_errors"],
+            "class": "logging.StreamHandler",
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": [
+                "console",
+            ],
+        }
+    },
+}

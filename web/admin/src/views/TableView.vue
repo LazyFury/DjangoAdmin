@@ -215,6 +215,7 @@ export default {
                     ...column,
                     type: column.type || 'render',
                     render: (row) => {
+                        column.key = column.prop;
                         if (column.slot) return ""
                         if (column.type === '' || column.type === 'render') {
                             let { valueType: type, key, mapping_key, data = [], def, formatStr = "", prefix = "", suffix = "" } = column || {}

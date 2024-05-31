@@ -116,14 +116,14 @@ class Api:
         query = self.modify_query(query)
 
         # print sql 
-        print(query.query)
+        print("list api:",query.query)
 
         total = query.count()
         data = query[(page - 1) * size : page * size]
         page_count = total // size + 1 if total % size > 0 else total // size
         return ApiJsonResponse.success(
             {
-                "data": [
+                "list": [
                     self.serizalize(obj) for obj in data
                 ],
                 "pageable": {

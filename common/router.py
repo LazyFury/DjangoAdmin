@@ -3,9 +3,12 @@ import traceback
 from typing import Any, Callable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
+from app import settings
 from common.exception import ApiError
 from common.response import ApiJsonResponse
 
+import better_exceptions
+better_exceptions.hook()
 
 class Route:
     def __init__(self, path, method, handler):
@@ -59,7 +62,7 @@ class Router:
                 route = self.match(request.path, request.method)
                 if route:
                     resp = route(request)
-                    if isinstance(resp, (dict, list,object)):
+                    if isinstance(resp, (dict, list)):
                         return ApiJsonResponse.success(resp)
                     if isinstance(resp, (str)):
                         return HttpResponse(content=resp)
@@ -75,8 +78,7 @@ class Router:
                 return response
             return JsonResponse(status=400, data={"message": "Invalid middleware"})
         except Exception as e:
-            trace = traceback.format_exc()
-            print(trace)
+            better_exceptions.excepthook(e.__class__, e, e.__traceback__)
             if isinstance(e, ApiError):
                 return ApiJsonResponse.error_response(e)
             return ApiJsonResponse.error_response(ApiError(str(e), 500))

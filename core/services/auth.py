@@ -56,7 +56,7 @@ class AuthService:
             query = query.filter(username=username)
 
         user = query.first()
-        print(query.query)
+        # print(query.query)
         assert user, "User Not Found."
         if user.check_password(password):
             return user

@@ -79,7 +79,7 @@ export default {
                         let {token,expired_at} = res.data?.data || {}
                         localStorage.setItem('token',token)
                         localStorage.setItem('expired_at',expired_at)
-                        // location.href = '/'
+                        location.href = '/'
                     }
                 })
             }

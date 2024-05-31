@@ -1,5 +1,6 @@
 import inspect
 from typing import Any, Callable
+import uuid
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.db.models.query import QuerySet
@@ -39,6 +40,8 @@ class Serozalizer:
             return {k: self.convert(v) for k, v in obj.items()}
         if isinstance(obj, (list, tuple)):
             return [self.convert(item) for item in obj]
+        if isinstance(obj,uuid.UUID):
+            return str(obj)
         if isinstance(obj, object):
             return serizalize(obj)
         raise Exception(f"无法解析的类型:{type(obj)}")

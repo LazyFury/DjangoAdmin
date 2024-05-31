@@ -1,10 +1,12 @@
 import datetime
 from django.http import HttpRequest, HttpResponse
+from django.contrib.auth.models import AnonymousUser
 
 from app import settings
 from common.exception import ApiNotAuthorizedError
 from common.response import ApiJsonResponse
 from common.utils.contextholder import ContextHolder
+from core.models import User, UserToken
 
 def modify_cors_response(response):
     response["Access-Control-Allow-Origin"] = "*"
@@ -68,7 +70,7 @@ def request_aspects(get_response):
     def wrapper(request):
         print(">>========request Start:",datetime.datetime.now(),"Url:",request.path,"Method:",request.method) 
         response = get_response(request)
-        print(">>========request End.",datetime.datetime.now())
+        print(">>========request End.",datetime.datetime.now(),"Url:",request.path,"Method:",request.method)
         return response
 
     return wrapper
@@ -81,8 +83,16 @@ def auth_middleware(get_response):
     """
     def wrapper(request):
         print("auth_middleware")
+
+        token = request.headers.get("TOKEN")
+        user = None
+        if token:
+            user = UserToken.find_user_by_token(token)
+        request.user = user if user else AnonymousUser()
+
         if not request.user.is_authenticated and request.path not in settings.AUTH_WHITE_LIST:
             return ApiJsonResponse.error_response(ApiNotAuthorizedError())
+        
         response = get_response(request)
         return response
 

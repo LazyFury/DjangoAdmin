@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from django.http import HttpResponse, JsonResponse
 
 from common import serizalize
@@ -6,11 +7,13 @@ from common.exception import ApiBadRequestError, ApiError
 
 
 class ApiJsonResponse(HttpResponse):
+    data:Any
+
     def __init__(self, data, **kwargs):
         if data is not None: 
             if isinstance(data, object):
                 data = serizalize.serizalize(data)
-
+        self.data = data
         super().__init__(json.dumps(data,sort_keys=False),**kwargs)
         self["content-type"] = "application/json"
 
