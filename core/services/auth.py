@@ -1,5 +1,5 @@
 import re
-from common.exception import ApiError, ApiNotAuthorizedError, ApiNotFoundError
+from common.exception import ApiError, ApiNotAuthorizedError
 from core.models import User
 from django.contrib.auth.hashers import make_password
 

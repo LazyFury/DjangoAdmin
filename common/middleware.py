@@ -6,7 +6,7 @@ from app import settings
 from common.exception import ApiNotAuthorizedError
 from common.response import ApiJsonResponse
 from common.utils.contextholder import ContextHolder
-from core.models import User, UserToken
+from core.models import UserToken
 
 def modify_cors_response(response):
     response["Access-Control-Allow-Origin"] = "*"
