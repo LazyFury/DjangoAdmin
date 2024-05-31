@@ -1,8 +1,5 @@
 <template>
     <div>
-        <div class="title">
-            <span class="text-2xl">{{ formTitle }}{{ title }}</span>
-        </div>
         <!-- {{ form }} -->
         <ElForm ref="formRef" :inline="false" :model="form" :rules="rules" :label-width="120" class="mt-0">
             <div class="mb-4 grid xl:grid-cols-2">
@@ -14,12 +11,12 @@
 
             <div v-if="multiRowMode" v-for="items in fields" class="flex flex-row flex-wrap">
                 <div class="w-line mb-2"></div>
-                <template v-for="field in items" :key="field.name">
-                    <ElFormItem v-if="!field.hidden" :label="field.label + ':'" :prop="field.name" :style="{
+                <template v-for="field in items" :key="field.prop">
+                    <ElFormItem v-if="!field.hidden" :label="field.label + ':'" :prop="field.prop" :style="{
                         width: field.width
                     }">
-                        <slot :name="field.name" :fields="fields" :field="field" :form="form">
-                            <FormItem :field="field" v-model="form[field.name]"></FormItem>
+                        <slot :name="field.prop" :fields="fields" :field="field" :form="form">
+                            <FormItem :field="field" v-model="form[field.prop]"></FormItem>
                         </slot>
                     </ElFormItem>
                 </template>

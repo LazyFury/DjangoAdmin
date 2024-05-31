@@ -2,7 +2,7 @@ from libs.elementui.base import ElWidget
 
 
 class ElFormItem(ElWidget):
-    def __init__(self, label: str, prop: str, type: str, props: dict, **kwargs):
+    def __init__(self, label: str, prop: str, type: str = "input", props: dict = {}, **kwargs):
         self.label = label
         self.prop = prop
         self.type = type

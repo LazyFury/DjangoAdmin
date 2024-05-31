@@ -25,34 +25,38 @@ class ElTableAction(object):
         label: str,
         form_key: str,
         icon: str,
-        api: str,
+        api_key: str,
         path: str = "",
-        params: dict = {},
-        confirm:ElConfirm = ElConfirm("提示", "确定要修改吗？"),
+        param_keys: list = [],
+        confirm:ElConfirm|None = None,
         type: ElTableActionType = ElTableActionType.FORM,
+        props: dict = {},
     ):
         self.label = label
         self.icon = icon
         #form
         self.form_key = form_key  # 打开一个表单，form_key是表单的key，传入row
         #api
-        self.api = api
-        self.params = params
+        self.api_key = api_key
+        self.param_keys = param_keys
         #router
         self.path = path
         # universal 
         self.confirm = confirm
         self.type = type
+        self.props = props
 
 class ElTableBatchAction(ElTableAction):
     def __init__(
         self,
         *args,
-        row_id: str = "id",
+        row_key:str="",
+        ids_name:str="",
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.row_id = row_id
+        self.row_key = row_key
+        self.ids_name = ids_name
         
 
 
@@ -63,8 +67,46 @@ class ElTable(ElWidget):
         columns: list[ElTableColumn] = [],
         search: ElForm = ElForm("Search"),
         filters: ElForm = ElForm("Filters"),
+        actions: list[ElTableAction] = [
+            ElTableAction(
+                label="编辑",
+                form_key="update|create",
+                icon="ant-design:edit-outlined",
+                api_key="update",
+                type=ElTableActionType.FORM,
+            ),
+            ElTableAction(
+                label="删除",
+                form_key="",
+                icon="ant-design:delete-outlined",
+                api_key="delete",
+                confirm=ElConfirm("提示", "确定要删除吗？",type="warning"),
+                type=ElTableActionType.API,
+                param_keys=['id'],
+                props={
+                    "type": "danger",
+                }
+            ),
+        ],
+        batch_actions: list[ElTableBatchAction] = [
+            ElTableBatchAction(
+                label="批量删除",
+                form_key="",
+                icon="ant-design:delete-outlined",
+                api_key="delete",
+                confirm=ElConfirm("提示", "确定要删除吗？",type="warning"),
+                type=ElTableActionType.API,
+                row_key="id",
+                ids_name="ids",
+                props={
+                    "type": "danger",
+                }
+            ),
+        ],
     ):
         self.title = title
         self.columns = columns
         self.search = search
         self.filters = filters
+        self.actions = actions
+        self.batch_actions = batch_actions

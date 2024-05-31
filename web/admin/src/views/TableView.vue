@@ -16,10 +16,12 @@
             <ElDivider class="!mb-4 !mt-2"></ElDivider>
             <div v-if="searchFormFields && searchFormFields.length > 0">
                 <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-2">
-                    <ElFormItem v-for="field in searchFormFields" :key="field.name" :label="field.label"
-                        :prop="field.name" :class="[]" :style="{ 'min-width': field.width || '100px' }">
-                        <FormItem :field="field" v-model="searchForm[field.name]"></FormItem>
+                    <div v-for="fields in searchFormFields">
+                        <ElFormItem v-for="field in fields" :key="field.prop" :label="field.label"
+                        :prop="field.prop" :class="[]" :style="{ 'min-width': field.width || '100px' }">
+                        <FormItem :field="field" v-model="searchForm[field.prop]"></FormItem>
                     </ElFormItem>
+                    </div>
                     <ElFormItem>
                         <ElButton type="primary" @click="submitSearch">
                             <Icon icon="heroicons-solid:magnifying-glass" class="mt-0px mr-4px"></Icon>
@@ -37,7 +39,7 @@
 
             <!-- betch actions  -->
             <div class="mb-4">
-                <ElButton :disabled="!canAdd" type="primary" @click="add">
+                <ElButton :disabled="!canAdd" type="primary" @click="handleCreate()">
                     <Icon icon="ant-design:plus-outlined"></Icon>
                     <span>添加</span>
                 </ElButton>
@@ -49,13 +51,12 @@
                 <!-- divider vertical  -->
                 <ElDivider direction="vertical" class="mx-4"></ElDivider>
 
-                <ElButton :type="action.btnType" @click="batchAction(action.action)"
-                    v-for="action in meta.table?.batchActions || []" :key="action.name">
-                    {{ action.label }}
+                <ElButton v-for="action in batchActions" :key="action.key" :loading="loading" :type="action.props?.type || 'default'"
+                    @click="handlerTableBatchAction(action)">
+                    <Icon :icon="action.icon" />
+                    <span>{{ action.label }}</span>
                 </ElButton>
-                <ElButton type="danger" @click="handleBatchDelete()">
-                    <span>批量删除</span>
-                </ElButton>
+
                 <!-- 导出 -->
                 <ElButton type="default" @click="exportData">
                     <Icon icon="ant-design:export-outlined"></Icon>
@@ -116,9 +117,10 @@
                     <!-- actions  -->
                     <ElTableColumn fixed="right" v-if="actions?.length" label="操作" min-width="150px">
                         <template #default="{ row }">
-                            <ElButton v-for="action in actions" link :key="action.key" :type="action.type || 'primary'"
-                                @click="action.handler(row)">
-                                {{ action.title }}
+                            <ElButton v-for="action in actions" link :key="action.key"
+                                :type="action.props?.type || 'primary'" @click="handlerRowAction(row, action)">
+                                <Icon :icon="action.icon" />
+                                <span>{{ action.label }}</span>
                             </ElButton>
                         </template>
                     </ElTableColumn>
@@ -133,22 +135,17 @@
             </div>
         </ElCard>
 
-        <slot name="addModal">
-            <ElDialog v-if="canAdd" title="提示" v-model="editModal" class="!md:w-640px !w-full !lg:w-960px">
-                <template #header>
-                    <div></div>
-                </template>
-                <slot name="addForm">
-                    <Form ref="formRef" :title="meta.title" :defaultForm="addFormDefault" :fields="addForm"
-                        @submit="handleAddSubmit">
-                    </Form>
-                </slot>
+        <slot v-for="form in formsList" :name="form.prop">
+            <ElDialog :title="form.title" :class="form.prop" v-model="isFormsActiveMapping[form.prop]"
+                class="!md:w-640px !w-full !lg:w-960px">
+                <Form :ref="form.prop" :title="form.title" :fields="form.rows" @submit="e => handleFormSubmit(e, form)">
+                </Form>
             </ElDialog>
         </slot>
     </div>
 </template>
 <script>
-import { ElPagination } from 'element-plus';
+import { ElButton, ElPagination } from 'element-plus';
 import { request } from '@/api/request';
 import Form from '@/views/components/Form.vue'
 import FormItem from './components/FormItem.vue';
@@ -167,7 +164,10 @@ export default {
             },
             tableData: [],
             loading: false,
-            editModal: false
+            editModal: false,
+
+            isFormsActiveMapping: {},
+            fromActionsMapping: {}
         };
     },
     watch: {},
@@ -176,25 +176,22 @@ export default {
             return this.meta.api
         },
         searchFormFields() {
-            return this.meta.searchForm?.fields || this.meta.search_form_fields || []
+            return this.meta.table?.search?.rows || []
+        },
+        forms() {
+            return this.meta.forms || []
+        },
+        formsList() {
+            return Object.keys(this.forms).map(key => ({
+                prop: key,
+                ...this.forms[key]
+            }))
         },
         addForm() {
-            return this.meta.addForm || this.meta.add_form_fields || []
+            return this.meta.forms?.create || { rows: [] }
         },
         canAdd() {
-            return this.addForm && this.addForm.length > 0
-        },
-        addFormDefault() {
-            let obj = {}
-            this.addForm.forEach(arr => {
-                arr.forEach(field => {
-                    obj[field.name] = field.defaultValue
-                    if (typeof field.defaultValue == null || field.defaultValue == undefined) {
-                        obj[field.name] = ""
-                    }
-                })
-            })
-            return obj
+            return this.addForm && this.addForm.rows?.length > 0
         },
         columns() {
             console.log(this.meta)
@@ -254,39 +251,166 @@ export default {
                 {
                     key: 'edit',
                     title: '编辑',
-                    type: 'primary'
+                    props: {
+                        type: 'primary'
+                    },
+                    form_key: 'edit_form',
+                    type: 'form'
                 },
                 {
                     key: 'delete',
                     title: '删除',
-                    type: 'danger'
+                    props: {
+                        type: 'danger'
+                    },
+                    type: 'api',
+                    api_key: 'delete'
                 }
-            ]).map(action => {
-                return {
-                    ...action,
-                    handler: (row) => {
-                        console.log(row)
-                        if (action.key === 'delete') {
-                            this.handleBatchDelete([row.id])
-                        }
-                        if (action.key === 'edit') {
-                            this.editModal = true
-                            this.$nextTick(() => {
-                                this.$refs.formRef?.edit(row)
-                                this.$emit("edit", row)
-                            })
-                        }
-                    }
-                }
-            })
+            ])
+        },
+        batchActions() {
+            return this.meta.table?.batch_actions || []
         }
     },
     methods: {
-        add() {
-            this.editModal = true
+        handlerTableBatchAction(action) {
+            let rows = this.getTableSelection()
+            if (rows.length == 0) {
+                return this.$message.error('请选择数据')
+            }
+            if (action.confirm) {
+                this.$confirm(action.confirm.message, action.confirm.title, {
+                    confirmButtonText: action.confirm.confirmButtonText || '确定',
+                    cancelButtonText: action.confirm.cancelButtonText || '取消',
+                    type: action.confirm.type || 'warning'
+                }).then(() => {
+                    this.handleTableBatchActionApi(rows, action)
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消'
+                    });
+                });
+                return
+            } else {
+                this.handleTableBatchActionApi(rows, action)
+            }
+        },
+        handleTableBatchActionApi(rows, action) {
+            let { api_key, param_keys, row_key,ids_name="ids" } = action
+            if (api_key) {
+                let params = {}
+                if (row_key) {
+                    params[ids_name] = rows.map(row => row[row_key])
+                }
+                let url = this.api[api_key]
+                if (!url) throw new Error('api_key not found')
+                request.post(url, params).then(res => {
+                    if (res.data?.code == 200) {
+                        this.load()
+                    }
+                })
+            }
+           
+        },
+        handleCreate() {
+            this.handleRowActionForm({}, {
+                form_key: 'create',
+                type: 'form',
+                api_key: 'create'
+            })
+        },
+        handlerRowAction(row, action) {
+
+            const exec = (action) => {
+                if (action.type == 'api') {
+                    return this.handleRowActionApi(row, action)
+                }
+                if (action.type == 'form') {
+                    return this.handleRowActionForm(row, action)
+                }
+            }
+
+            if (action.confirm) {
+                this.$confirm(action.confirm.message, action.confirm.title, {
+                    confirmButtonText: action.confirm.confirmButtonText || '确定',
+                    cancelButtonText: action.confirm.cancelButtonText || '取消',
+                    type: action.confirm.type || 'warning'
+                }).then(() => {
+                    exec(action)
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消'
+                    });
+                });
+                return
+            } else {
+                exec(action)
+            }
+        },
+        handleRowActionForm(row, action) {
+            // console.log(this.$refs, action)
+            let { form_key } = action
+            let keys = form_key.split("|")
+            let current_key;
+            let form
+            let formRef
+
+            for (let key of keys) {
+                form = this.forms[key]
+                if (form) {
+                    current_key = key
+                    break
+                }
+            }
+
+            // console.log("formRef", formRef)
+            if (!form || !form.rows || form.rows.length == 0) {
+                return this.$message.error('表单不存在')
+            }
+
+            this.isFormsActiveMapping[current_key] = true
+            this.fromActionsMapping[current_key] = action
+
             this.$nextTick(() => {
-                this.$refs.formRef?.add({})
-                this.$emit("add")
+                formRef = this.$refs[current_key][0] || this.$refs[current_key]
+                formRef?.edit && formRef?.edit(row)
+            })
+        },
+        handleRowActionApi(row, action) {
+            let { api_key, param_keys, method } = action
+            if (api_key) {
+                let params = {}
+                if (param_keys) {
+                    param_keys.forEach(key => {
+                        params[key] = row[key]
+                    });
+                }
+                console.log(this.api)
+                let url = this.api[api_key]
+                if (!url) throw new Error('api_key not found')
+                request.post(url, params).then(res => {
+                    if (res.data?.code == 200) {
+                        this.load()
+                    }
+                })
+            }
+        },
+        handleFormSubmit(e, form = {}) {
+            console.log(e, form)
+            let action = this.fromActionsMapping[form.prop] || {}
+            let { api_key } = action
+            let { submit_api } = form
+            let api_url = submit_api || this.api[api_key]
+            console.log(api_key, api_url)
+            if (!api_url) throw new Error('api_key not found')
+
+            request.post(api_url, e).then(res => {
+                if (res.data?.code == 200) {
+                    this.load()
+                    this.isFormsActiveMapping[form.prop] = false
+                }
             })
         },
         submitSearch() {
@@ -296,7 +420,6 @@ export default {
         resetSearchForm() {
             this.searchForm = {}
             this.load()
-
             // reset table sort
             this.$refs.tableRef.clearSort()
         },
@@ -348,38 +471,6 @@ export default {
         getTableSelectionIds() {
             return this.getTableSelection().map(item => item.id)
         },
-        batchAction(key) {
-            let actionMap = {
-                delete: () => this.handleBatchDelete()
-            }
-            actionMap[key]?.()
-        },
-        handleBatchDelete(ids = null) {
-            if (!ids) ids = this.getTableSelectionIds()
-            if (!ids.length) return
-            this.$confirm('确定删除选中的数据吗？', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                console.log(ids)
-                request.delete(this.api + ".delete", {
-                    data: {
-                        ids
-                    },
-                }).then(res => {
-                    if (res.data.code == 200) {
-                        this.$message.success("删除成功")
-                        this.load()
-                    }
-                })
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消删除'
-                });
-            });
-        },
         exportData() {
             this.$confirm('确定导出当前数据吗？', '提示', {
                 confirmButtonText: this.$t("export"),
@@ -416,27 +507,6 @@ export default {
                 link.click()
                 document.body.removeChild(link)
                 window.URL.revokeObjectURL(url)
-            })
-        },
-        handleAddSubmit(form) {
-            console.log(form)
-            if (form.id) {
-                request.put(this.api + ".update", form).then(res => {
-                    if (res.data?.code == 200) {
-                        this.$message.success("修改成功")
-                        this.editModal = false
-                        this.load()
-                    }
-                })
-                return
-            }
-
-            request.post(this.api + ".create", form).then(res => {
-                if (res.data?.code == 200) {
-                    this.$message.success("添加成功")
-                    this.editModal = false
-                    this.load()
-                }
             })
         },
         makeUrl(row, column, key) {

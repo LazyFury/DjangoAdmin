@@ -69,13 +69,16 @@ class Router:
                     if isinstance(resp, (HttpResponse, JsonResponse, ApiJsonResponse)):
                         return resp
                     raise ValueError("Invalid response type")
+                print("not found")
                 return ApiJsonResponse.error_response(ApiError("Not Found", 404))
 
             for _, middleware in self.middlewares:
                 get_response = middleware(get_response)
+
             if callable(get_response):
                 response = get_response(request=request)
                 return response
+            
             return JsonResponse(status=400, data={"message": "Invalid middleware"})
         except Exception as e:
             better_exceptions.excepthook(e.__class__, e, e.__traceback__)

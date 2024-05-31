@@ -1,3 +1,4 @@
+import json
 from typing import Any, Callable
 from django.db import models
 from django.http import HttpRequest
@@ -36,10 +37,10 @@ class Api:
             **request.GET.dict(),
         },
         get_create_params: Callable[[HttpRequest], dict] = lambda request: {
-            **request.POST.dict()
+            **json.loads(request.body)
         },
         get_update_params: Callable[[HttpRequest], dict] = lambda request: {
-            **request.POST.dict()
+            **json.loads(request.body)
         },
         extra: dict[str, Callable[[models.Model], Any]] = {},
         config: Config = Config(),
@@ -145,7 +146,8 @@ class Api:
     def update(self, request: HttpRequest):
         if not self.config.enable_update:
             raise ApiNotFoundError("Update is not allowed")
-        id = request.GET.get("id")
+        params = self.get_update_params(request)
+        id = params.get("id")
         if not id:
             raise ApiNotFoundError("id is required")
         obj = self.model.objects.filter(**self.extra_search_condition(request)).get(
@@ -153,7 +155,6 @@ class Api:
         )
         if not obj:
             raise ApiNotFoundError()
-        params = self.get_update_params(request)
         for key, value in params.items():
             setattr(obj, key, value)
         obj.save()
@@ -162,9 +163,16 @@ class Api:
     def delete(self, request: HttpRequest):
         if not self.config.enable_delete:
             raise ApiNotFoundError("Delete is not allowed")
-        ids = request.POST.getlist("ids", [])
-        if not ids:
-            raise ApiNotFoundError("ids is required")
+        params = {
+            **json.loads(request.body)
+        }
+        ids = params.get("ids")
+        id = params.get("id")
+    
+        if not ids and not id:
+            raise ApiNotFoundError("ids/id is required")
+        if id:
+            ids = [id]
         query = self.model.objects.filter(
             **self.extra_search_condition(request)
         ).filter(pk__in=ids)
@@ -178,8 +186,8 @@ class Api:
         router.get(f"{path}.detail")(self.get)
         router.get(f"{path}.list")(self.list)
         router.post(f"{path}.create")(self.create)
-        router.put(f"{path}.update")(self.update)
-        router.delete(f"{path}.delete")(self.delete)
+        router.post(f"{path}.update")(self.update)
+        router.post(f"{path}.delete")(self.delete)
         return self
 
 
