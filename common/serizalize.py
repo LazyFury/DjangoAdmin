@@ -1,3 +1,4 @@
+import enum
 import inspect
 from typing import Any, Callable
 import uuid
@@ -42,6 +43,8 @@ class Serozalizer:
             return [self.convert(item) for item in obj]
         if isinstance(obj,uuid.UUID):
             return str(obj)
+        if isinstance(obj,enum.Enum):
+            return obj.value
         if isinstance(obj, object):
             return serizalize(obj)
         raise Exception(f"无法解析的类型:{type(obj)}")

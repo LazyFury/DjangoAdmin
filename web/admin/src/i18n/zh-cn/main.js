@@ -17,6 +17,7 @@ export default {
     "refresh":"刷新",
     "reset":"重置",
     "export":"导出",
+    "Dashboard":"仪表盘",
 
     ...common
 }
