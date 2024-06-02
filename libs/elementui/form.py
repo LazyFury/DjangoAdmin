@@ -2,11 +2,12 @@ from libs.elementui.base import ElWidget
 
 
 class ElFormItem(ElWidget):
-    def __init__(self, label: str, prop: str, type: str = "input", props: dict = {}, **kwargs):
+    def __init__(self, label: str, prop: str, type: str = "input", props: dict = {},required=True, **kwargs):
         self.label = label
         self.prop = prop
         self.type = type
         self.props = props
+        self.required = required
         for key, value in kwargs.items():
             setattr(self, key, value)
 

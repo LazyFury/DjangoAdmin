@@ -20,3 +20,4 @@ class Wrapped(object):
 
 def jsonGetter(func:Callable):
     return Wrapped(func,json=True)
+

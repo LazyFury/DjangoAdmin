@@ -56,8 +56,8 @@ export default {
             let map = {}
             this.flatFields.forEach(el => {
                 if (el.required) {
-                    map[el.name] = [
-                        { required: true, message: el.placeholder }
+                    map[el.prop] = [
+                        { required: true, message: el.message || el.placeholder }
                     ]
                 }
             })
@@ -86,7 +86,9 @@ export default {
             }
         };
     },
-    watch: {},
+    watch: {
+      
+    },
     methods: {
         handleSubmit() {
             this.$refs.formRef.validate((valid) => {
@@ -101,12 +103,14 @@ export default {
             if(this.progressFormData && typeof this.progressFormData === 'function'){
                 form = this.progressFormData(form)
             }
-            this.form = form
+            this.setDefaultValues()
+            this.form = Object.assign(this.form,form)
             this.$forceUpdate()
         },
-        add() {
-            this.reset()
-            this.$forceUpdate()
+        setDefaultValues() {
+            this.flatFields.forEach(el => {
+               this.form[el.prop] = el.defaultValue
+            })
         },
         close() {
             this.reset()

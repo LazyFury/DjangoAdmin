@@ -19,13 +19,13 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
-
+from django.contrib.contenttypes.models import ContentType
 from core.models import User
 
 csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
 
-
+admin.site.register(ContentType)
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -98,7 +98,7 @@ class UserAdmin(admin.ModelAdmin):
     def lookup_allowed(self, lookup, value, request=None):
         # Don't allow lookups involving passwords.
         return not lookup.startswith("password") and super().lookup_allowed(
-            lookup, value, request
+            lookup, value, request # type: ignore
         )
 
     @sensitive_post_parameters_m
@@ -133,7 +133,7 @@ class UserAdmin(admin.ModelAdmin):
             "username_help_text": username_field.help_text,
         }
         extra_context.update(defaults)
-        return super().add_view(request, form_url, extra_context)
+        return super().add_view(request, form_url, extra_context) # type: ignore
 
     @sensitive_post_parameters_m
     def user_change_password(self, request, id, form_url=""):
@@ -215,5 +215,5 @@ class UserAdmin(admin.ModelAdmin):
         # * We are adding a user in a popup
         if "_addanother" not in request.POST and IS_POPUP_VAR not in request.POST:
             request.POST = request.POST.copy()
-            request.POST["_continue"] = 1
+            request.POST["_continue"] = 1 # type: ignore
         return super().response_add(request, obj, post_url_continue)

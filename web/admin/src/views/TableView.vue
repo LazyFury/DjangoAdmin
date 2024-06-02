@@ -100,7 +100,7 @@
                                 :preview-teleported="true"
                                 :preview-src-list="row[column.prop] ? [$img(row[column.prop])] : []"
                                 style="width: 50px; height: 50px;"></ElImage>
-                            <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}
+                            <ElTag v-if="column.type == 'tag'" :type="column.props?.type || ''">{{ row[column.prop] }}
                             </ElTag>
 
                             <!-- link  -->
@@ -149,6 +149,7 @@ import { ElButton, ElPagination } from 'element-plus';
 import { request } from '@/api/request';
 import Form from '@/views/components/Form.vue'
 import FormItem from './components/FormItem.vue';
+import config from '@/config';
 
 export default {
     components: { ElPagination, Form, FormItem },
@@ -486,9 +487,8 @@ export default {
             });
         },
         exportDataApi() {
-            console.log('export')
             request({
-                url: this.api + '.export',
+                url: this.api.export,
                 method: 'get',
                 responseType: 'blob',
                 params: {
@@ -499,10 +499,12 @@ export default {
                 let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
                 let url = window.URL.createObjectURL(blob)
                 let link = document.createElement('a')
+                let headers = res.headers
+
                 link.style.display = 'none'
                 link.href = url
                 let filename = `${this.meta.title}-导出-${this.$dayjs().format('YYYYMMDDHHmmss')}`
-                link.setAttribute('download', `${filename}.csv`)
+                link.setAttribute('download', decodeURI(filename))
                 document.body.appendChild(link)
                 link.click()
                 document.body.removeChild(link)

@@ -18,7 +18,6 @@ def modify_cors_response(response):
     return response
 
 
-
 def cors_middleware(get_response):
     def wrapper(request:HttpRequest):
         print("cors_middleware")

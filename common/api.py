@@ -1,14 +1,26 @@
+import datetime
+from io import StringIO
 import json
+import os
 from typing import Any, Callable
 from django.db import models
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import AbstractUser
+from openpyxl import Workbook
+import pandas
+from openpyxl.styles import Font, Border, Side
+from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.chart import LineChart,Reference
 
+from app import settings
 from common import serizalize
 from common.exception import ApiNotFoundError
+from common.export import XlsxExportConfig
 from common.response import ApiJsonResponse
 from common.router import Router
+from common.models import Model
 
 
 class Api:
@@ -22,13 +34,14 @@ class Api:
             self.enable_update = enable_update
             self.enable_delete = enable_delete
 
-    model: models.Model
+    model: Model|models.Model
     get_list_params: Callable[[HttpRequest], dict]
     get_create_params: Callable[[HttpRequest], dict]
     get_update_params: Callable[[HttpRequest], dict]
     extra: dict[str, Callable[[models.Model], Any]]
     hidden: list[str]
     config: Config
+    xlsx_config:XlsxExportConfig
 
     def __init__(
         self,
@@ -45,6 +58,7 @@ class Api:
         extra: dict[str, Callable[[models.Model], Any]] = {},
         config: Config = Config(),
         hidden: list[str] = [],
+        xlsx_config:XlsxExportConfig = XlsxExportConfig([])
     ):
         """ __init__ method for Api
 
@@ -64,6 +78,23 @@ class Api:
         self.extra = extra
         self.config = config
         self.hidden = hidden
+        self.xlsx_config = xlsx_config
+
+    def get_hidden_fields(self):
+        model_hidden_fields = getattr(self.model,"hidden_fields",[])
+        return self.hidden + model_hidden_fields
+
+    def get_protected_fields(self):
+        model_protected_fields = getattr(self.model,"protected_fields",[])
+        return model_protected_fields
+    
+    def get_xlsx_config(self):
+        model_xlsx_config = getattr(self.model,"xlsx_config",XlsxExportConfig([]))
+        assert isinstance(model_xlsx_config,XlsxExportConfig)
+        return model_xlsx_config + self.xlsx_config
+    
+    def get_xlsx_fields(self):
+        return self.get_xlsx_config().fields
 
     def extra_search_condition(self, request: HttpRequest):
         """多余的查询条件，比如从 header 获取 user_id，添加到查询条件中
@@ -76,8 +107,8 @@ class Api:
         """
         return {}
     
-    def serizalize(self, obj):
-        return serizalize.serizalize(obj, extra=self.extra, hidden=self.hidden)
+    def serizalize(self, obj,**kwargs):
+        return serizalize.serizalize(obj, extra=self.extra, hidden=self.get_hidden_fields(),**kwargs)
 
     def get(self, request: HttpRequest):
         id = request.GET.get("id")
@@ -178,6 +209,95 @@ class Api:
         ).filter(pk__in=ids)
         query.delete()
         return ApiJsonResponse.success("Delete Success")
+    
+    def export(self,request:HttpRequest):
+        params = self.get_list_params(request)
+        orders = str(params.pop("order_by", "id__desc")).split(",")
+
+        query = self.model.objects.filter(**params).filter(
+            **self.extra_search_condition(request)
+        )
+        query = self.list_order_by(query, orders)
+        query = self.modify_query(query)
+
+        # print sql 
+        print("export api:",query.query)
+        data = query
+        json_data = [self.serizalize(obj,with_foreign_keys=False) for obj in data]
+        print("export data:",json_data)
+        print("hidden:",self.hidden)
+        dataframe = pandas.read_json(StringIO(json.dumps(json_data)))
+        file = self.get_export_filename()
+        self.to_excel(dataframe, file)
+        return HttpResponse(open(file,"rb"),content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",headers={"Content-Disposition":f"attachment; filename={self.model._meta.model_name}.xlsx"}) 
+
+    def get_export_filename(self):
+        out_dir = os.path.join(settings.BASE_DIR,"temp/export")
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        date_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        file = os.path.join(out_dir,f"{self.model._meta.model_name}_{date_str}.xlsx")
+        return file
+    
+    def is_unicode_chinese(self, value):
+        for ch in value:
+            if u'\u4e00' <= ch <= u'\u9fff':
+                return True
+        return False
+
+
+    def to_excel(self, dataframe:pandas.DataFrame, file):
+        wb = Workbook(write_only=False)
+        ws:Worksheet = wb.active # type: ignore
+        assert ws, "ws is None"
+        # print(dataframe)
+
+        dataframe = dataframe.fillna("/")
+
+        for field in self.get_xlsx_fields():
+            if hasattr(dataframe,field.prop):
+                dataframe[field.prop] = dataframe[field.prop].map(lambda x:field.format(x))
+        
+        # sort cols 
+        if len(self.get_xlsx_fields()) > 0:
+            dataframe = dataframe.reindex(columns=[field.prop for field in self.get_xlsx_fields()])
+
+            sum_row = [None for _ in range(len(dataframe.columns))]
+            sum_row[0] = "合计" # type: ignore
+            sub_dataframe = pandas.DataFrame([sum_row],columns=dataframe.columns)
+            for field in self.get_xlsx_fields()[1:]:
+                if field.sum:
+                    sub_dataframe[field.prop] = dataframe[field.prop].sum()
+            dataframe = pandas.concat([dataframe,sub_dataframe])
+
+
+        for r in dataframe_to_rows(dataframe, index=False, header=True):
+            ws.append(r)
+        
+                       
+        # set column with from a-z 
+        for column_cells in ws.columns:
+            length = max(len(str(cell.value)) for cell in column_cells)
+            length = min(50,length)
+            width = 2.0 if self.is_unicode_chinese(column_cells[0].value) else 1.0
+            ws.column_dimensions[column_cells[0].column_letter].width = length * width + 4
+                    
+        # set header style 
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+            # borderd 
+            cell.border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
+            # line height 
+            cell.alignment = cell.alignment.copy(wrap_text=False,vertical="center")
+            cell.fill = cell.fill.copy(start_color="dddddd",end_color="dddddd",fill_type="solid")
+            # set label with config 
+            for field in self.get_xlsx_fields():
+                if field.prop == cell.value:
+                    cell.value = field.label
+                    break
+
+        wb.save(file)       
+        
 
     def register(self, router: Router, path=None):
         if not path:
@@ -188,6 +308,7 @@ class Api:
         router.post(f"{path}.create")(self.create)
         router.post(f"{path}.update")(self.update)
         router.post(f"{path}.delete")(self.delete)
+        router.get(f"{path}.export")(self.export)
         return self
 
 

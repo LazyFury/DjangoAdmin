@@ -1,9 +1,10 @@
 from django.http import HttpRequest
 
+from app import settings
 from libs.elementui.base import ElApis
 from libs.elementui.form import ElForm, ElFormItem
 from libs.elementui.menu import ElMenu, ElMenuItem
-from libs.elementui.table import ElTable, ElTableColumn
+from libs.elementui.table import DefActions, ElTable, ElTableColumn
 from . import api
 
 
@@ -27,10 +28,72 @@ def menus(request: HttpRequest):
                 children=[
                     user_menu(),
                     user_group_menu(),
-                    user_token_menu()
+                    user_token_menu(),
+                    permission_menu()
                 ],
             ),
         ]
+    )
+
+def permission_menu():
+    return ElMenuItem(
+        title="用户权限",
+        key="permission",
+        path="/permission",
+        component="TableView",
+        table=ElTable(
+            title="权限",
+            columns=[
+                ElTableColumn(prop="name", label="名称", width="180"),
+                ElTableColumn(prop="codename", label="codename", width="180",type="tag"),
+                ElTableColumn(prop="content_type_code",label="内容类型",type="tag",props={
+                    "type":"info"
+                })
+            ],
+            
+        ),
+        api=ElApis(
+            list="/permission.list",
+            delete="/permission.delete",
+            create="/permission.create",
+            update="/permission.update",
+            export="/permission.export",
+        ),
+        forms={
+            "create": ElForm(
+                title="创建权限",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="名称",
+                            prop="name",
+                            type="input",
+                            placeholder="请输入",
+                            required=True,
+                            message="请输入权限名称"
+                        ),
+                        ElFormItem(
+                            label="codename",
+                            prop="codename",
+                            type="input",
+                            placeholder="请输入",
+                            required=True,
+                            message="请输入权限 Code"
+                        ),
+                        # content_type_id 
+                        ElFormItem(
+                            label="content_type_id",
+                            prop="content_type_id",
+                            type="input",
+                            placeholder="请输入",
+                            hidden=True,
+                            defaultValue=settings.PERMISSION_DEFAULT_CONTENT_TYPE_ID
+                        ),
+                    ]
+                ],
+            ),
+        }
+        
     )
 
 def user_token_menu():
@@ -39,7 +102,31 @@ def user_token_menu():
         key="user-log",
         path="/user/user-log",
         component="TableView",
-        api=ElApis(list="/user-log.list")
+        api=ElApis(list="/user-log.list",export="/user-log.export",delete="/user-log.delete"),
+        table=ElTable(
+            title="用户登录日志",
+            columns=[
+                # username 
+                ElTableColumn(prop="username", label="用户名", width="180"),
+                # device 
+                ElTableColumn(prop="device", label="设备", type="tag"),
+                # browser 
+                ElTableColumn(prop="browser", label="浏览器",type="tag"),
+                # version 
+                ElTableColumn(prop="version", label="版本",),
+                # language 
+                ElTableColumn(prop="language", label="语言",),
+                # user_agent
+                ElTableColumn(prop="ua_cut", label="UserAgent", width="180"),
+                # ip 
+                ElTableColumn(prop="ip", label="IP",type="link"),  
+                # expire_at 
+                ElTableColumn(prop="expire_at", label="过期时间", width="180"),
+            ],
+            actions=[
+                DefActions.DELETE
+            ]
+        )
     )
 
 
@@ -66,6 +153,7 @@ def user_menu():
         api=ElApis(
             list="/user.list",
             delete="/user.delete",
+            export="/user.export",
         ),
     )
 
@@ -104,6 +192,7 @@ def user_group_menu():
             delete="/user-group.delete",
             create="/user-group.create",
             update="/user-group.update",
+            export="/user-group.export",
         ),
         forms={
             "create": ElForm(

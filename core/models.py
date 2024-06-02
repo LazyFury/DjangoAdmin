@@ -7,18 +7,9 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from common.exception import ApiError
+from common.export import XlsxExportConfig, XlsxExportField
 from common.wrapped import jsonGetter
-
-
-# Create your models here.
-class Model(models.Model):
-    id = models.AutoField(primary_key=True)
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
+from common.models import Model
 
 
 class User(AbstractUser, Model):
@@ -29,6 +20,26 @@ class User(AbstractUser, Model):
     location = models.CharField(max_length=100, null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     latitude = models.FloatField(null=True, blank=True)
+
+    xlsx_config = XlsxExportConfig(
+        fields=[
+            XlsxExportField("id", "ID"),
+            XlsxExportField("username", "用户名"),
+            XlsxExportField("email", "邮箱"),
+            XlsxExportField("nickname", "昵称"),
+            XlsxExportField("bio", "简介"),
+            XlsxExportField("birth_date", "生日", "date"),
+            XlsxExportField("location", "位置"),
+            XlsxExportField("longitude", "经度"),
+            XlsxExportField("latitude", "纬度"),
+            XlsxExportField("created_at", "创建时间", "date"),
+            XlsxExportField("updated_at", "更新时间", "date"),
+            XlsxExportField("is_active", "是否激活", "bool",sum=True),
+            XlsxExportField("is_staff", "是否员工", "bool",sum=True),
+            XlsxExportField("is_superuser", "是否超级用户", "bool"),
+            XlsxExportField("first_name", "名"),
+        ]
+    )
 
     @jsonGetter
     def avatar_url(self):
@@ -64,6 +75,14 @@ class UserToken(Model):
         if not self.expire_at:
             return False
         return self.expire_at > timezone.now()
+
+    @jsonGetter
+    def username(self):
+        return self.user.username if self.user else None
+    
+    @jsonGetter
+    def ua_cut(self):
+        return self.user_agent[:20] if self.user_agent else None
 
     @staticmethod
     def get_device_info_from_request(request: HttpRequest) -> dict[str, str]:
@@ -112,7 +131,7 @@ class UserToken(Model):
 
     @staticmethod
     def create_token(user: User, request: HttpRequest):
-        expire_at = timezone.now() + timedelta(days=7)
+        expire_at = timezone.now() + timedelta(days=1)
         while True:
             token_str = uuid.uuid4()
             if not UserToken.objects.filter(token=token_str.hex).exists():
@@ -133,7 +152,7 @@ class UserToken(Model):
     def find_user_by_token(token):
         token = UserToken.objects.filter(token=token).first()
         if not token:
-            raise ApiError("Token Not Found.")
+            return None
         return token.user
 
     @staticmethod
@@ -142,7 +161,7 @@ class UserToken(Model):
         token = UserToken.objects.filter(user=user).order_by("-created_at").first()
         if not token or token.user_agent != device_info["user_agent"] or token.ip != device_info["ip"] or token.device != device_info["device"] or token.platform != device_info["platform"]:
             return UserToken.create_token(user, request=request)
-        token.expire_at = timezone.now() + timedelta(days=7)
+        token.expire_at = timezone.now() + timedelta(days=1)
         for k, v in UserToken.get_device_info_from_request(request).items():
             setattr(token, k, v)
         token.save()

@@ -179,3 +179,6 @@ LOGGING = {
         }
     },
 }
+
+## 权限默认的content_type_id
+PERMISSION_DEFAULT_CONTENT_TYPE_ID = 8
