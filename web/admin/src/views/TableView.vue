@@ -432,6 +432,15 @@ export default {
             this.pagination.currentPage = val
             this.load()
         },
+        getSearchForm(){
+            let form = { ...this.searchForm }
+            for (let key in form) {
+                if (form[key] == "") {
+                    delete form[key]
+                }
+            }
+            return form
+        },
         load() {
             this.loading = true
             request({
@@ -440,7 +449,7 @@ export default {
                 params: {
                     page: this.pagination.currentPage,
                     size: this.pagination.pageSize,
-                    ...this.searchForm
+                    ...this.getSearchForm()
                 }
             }).then(res => {
                 let data = res.data.data || {}
@@ -492,7 +501,7 @@ export default {
                 method: 'get',
                 responseType: 'blob',
                 params: {
-                    ...this.searchForm
+                    ...this.getSearchForm()
                 },
                 binary: true
             }).then(res => {

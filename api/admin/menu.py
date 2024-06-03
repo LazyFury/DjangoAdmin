@@ -125,7 +125,24 @@ def user_token_menu():
             ],
             actions=[
                 DefActions.DELETE
-            ]
+            ],
+            search=ElForm(
+                title="search",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="用户名",
+                            prop="user__username",
+                            placeholder="请输入用户名",
+                        ),
+                        ElFormItem(
+                            label="IP",
+                            prop="ip",
+                            placeholder="请输入IP",
+                        ),
+                    ]
+                ],
+            ),
         )
     )
 
@@ -149,6 +166,23 @@ def user_menu():
                 ),
                 ElTableColumn(prop="is_active", label="is_active", type="checkbox"),
             ],
+            search=ElForm(
+                title="search",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="用户名",
+                            prop="username",
+                            placeholder="请输入用户名",
+                        ),
+                        ElFormItem(
+                            label="邮箱",
+                            prop="email",
+                            placeholder="请输入邮箱",
+                        ),
+                    ]
+                ],
+            ),
         ),
         api=ElApis(
             list="/user.list",
