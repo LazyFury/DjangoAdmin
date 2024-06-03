@@ -20,10 +20,26 @@
     <!-- switch -->
     <ElSwitch @change="handleUpdate" v-model="value" v-if="field.type == 'switch'"
         :active-text="field.checkedChildren"></ElSwitch>
-    <!-- checkbox only one -->
-    <ElCheckbox @change="handleUpdate" v-model="value" v-if="field.type == 'checkbox' && !field.multiple"
-        :label="field.placeholder">
+
+    <!-- checkbox  group  -->
+    <ElCheckboxGroup @change="handleUpdate" v-model="value" v-if="field.type == 'checkbox'">
+        <ElCheckbox v-for="item in options" :key="item.value" :label="item.value">{{ item.label }}</ElCheckbox>
+    </ElCheckboxGroup>
+
+    <!-- sigle checkbox as bool  -->
+    <ElCheckbox @change="handleUpdate" v-model="value" v-if="field.type == 'checkbox-as-bool'">
+        {{ field.label }}
     </ElCheckbox>
+
+    <!-- radio  -->
+    <ElRadioGroup @change="handleUpdate" v-model="value" v-if="field.type == 'radio'">
+        <ElRadio v-for="item in options" :key="item.value" :label="item.value">{{ item.label }}</ElRadio>
+    </ElRadioGroup>
+
+    <!-- radio-button  -->
+    <ElRadioGroup @change="handleUpdate" v-model="value" v-if="field.type == 'radio-button'">
+        <ElRadioButton v-for="item in options" :key="item.value" :label="item.value">{{ item.label }}</ElRadioButton>
+    </ElRadioGroup>
 
     <!-- input  -->
     <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'" v-if="!field.type || field.type == 'input'"
@@ -74,6 +90,7 @@ export default {
         value: {
             handler(val) {
                 this.$emit('update:modelValue', val)
+                this.$emit('change', val)
             }
         }
     },
@@ -83,6 +100,9 @@ export default {
             this.$emit('update:modelValue', val)
         },
         getOptions() {
+            if (this.field.options) {
+                this.options = this.field.options
+            } else
             if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
                 this.options = (res.data?.data?.list || []).map(v => {
                     let label_name = this.field.props?.label || 'name'
@@ -126,6 +146,10 @@ export default {
     created() { },
     mounted() {
         this.getOptions()
+
+        if (this.field.type == 'checkbox'){
+            this.value = this.value || []
+        }
     }
 };
 </script>

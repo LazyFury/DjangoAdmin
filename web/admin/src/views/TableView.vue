@@ -14,13 +14,28 @@
                 </div>
             </div>
             <ElDivider class="!mb-4 !mt-2"></ElDivider>
+
+            <div v-if="filters && filters.rows?.length > 0">
+                <div>
+                    <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-0">
+                        <div v-for="fields in filters.rows">
+                            <ElFormItem v-for="field in fields" :key="field.prop" :label="field.label"
+                                :prop="field.prop" :class="[]" :style="{ 'min-width': field.width || '100px' }">
+                                <FormItem :field="field" v-model="searchForm[field.prop]" @change="load()"></FormItem>
+                            </ElFormItem>
+                        </div>
+                    </ElForm>
+                </div>
+                <ElDivider class="!mb-4 !mt-0"></ElDivider>
+            </div>
+
             <div v-if="searchFormFields && searchFormFields.length > 0">
                 <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-2">
                     <div v-for="fields in searchFormFields">
-                        <ElFormItem v-for="field in fields" :key="field.prop" :label="field.label"
-                        :prop="field.prop" :class="[]" :style="{ 'min-width': field.width || '100px' }">
-                        <FormItem :field="field" v-model="searchForm[field.prop]"></FormItem>
-                    </ElFormItem>
+                        <ElFormItem v-for="field in fields" :key="field.prop" :label="field.label" :prop="field.prop"
+                            :class="[]" :style="{ 'min-width': field.width || '100px' }">
+                            <FormItem :field="field" v-model="searchForm[field.prop]"></FormItem>
+                        </ElFormItem>
                     </div>
                     <ElFormItem>
                         <ElButton type="primary" @click="submitSearch">
@@ -51,8 +66,8 @@
                 <!-- divider vertical  -->
                 <ElDivider direction="vertical" class="mx-4"></ElDivider>
 
-                <ElButton v-for="action in batchActions" :key="action.key" :loading="loading" :type="action.props?.type || 'default'"
-                    @click="handlerTableBatchAction(action)">
+                <ElButton v-for="action in batchActions" :key="action.key" :loading="loading"
+                    :type="action.props?.type || 'default'" @click="handlerTableBatchAction(action)">
                     <Icon :icon="action.icon" />
                     <span>{{ action.label }}</span>
                 </ElButton>
@@ -179,6 +194,9 @@ export default {
         searchFormFields() {
             return this.meta.table?.search?.rows || []
         },
+        filters() {
+            return this.meta.table?.filters || []
+        },
         forms() {
             return this.meta.forms || []
         },
@@ -298,7 +316,7 @@ export default {
             }
         },
         handleTableBatchActionApi(rows, action) {
-            let { api_key, param_keys, row_key,ids_name="ids" } = action
+            let { api_key, param_keys, row_key, ids_name = "ids" } = action
             if (api_key) {
                 let params = {}
                 if (row_key) {
@@ -312,7 +330,7 @@ export default {
                     }
                 })
             }
-           
+
         },
         handleCreate() {
             this.handleRowActionForm({}, {
@@ -432,7 +450,7 @@ export default {
             this.pagination.currentPage = val
             this.load()
         },
-        getSearchForm(){
+        getSearchForm() {
             let form = { ...this.searchForm }
             for (let key in form) {
                 if (form[key] == "") {
@@ -469,10 +487,7 @@ export default {
         },
         handleSortChange({ column, order }) {
             if (!order) return
-            let { no } = column
-            let col = this.meta.table.columns[no - 1]
-            this.searchForm.order_by = col.key + (order === 'ascending' ? '_asc' : '_desc')
-            console.log(col)
+            this.searchForm.order_by = column.rawColumnKey + (order === 'ascending' ? '__asc' : '__desc')
             this.load()
         },
         getTableSelection() {

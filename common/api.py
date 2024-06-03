@@ -22,6 +22,22 @@ from common.router import Router
 from common.models import Model
 
 
+def progress_get_query_params(request: HttpRequest):
+    list_params = request.GET.lists()
+    print("list_params:",list_params)
+
+    def replace_key(key):
+        if key.endswith("[]"):
+            return key[:-2]
+        return key
+
+    return {
+        **{
+            replace_key(key): value[0] if not key.endswith("[]") else value
+            for key, value in list_params
+        }
+    }
+
 class Api:
     class Config:
         enable_create = True
@@ -46,7 +62,7 @@ class Api:
         self,
         model: models.base.ModelBase,
         get_list_params: Callable[[HttpRequest], dict] = lambda request: {
-            **request.GET.dict(),
+            **progress_get_query_params(request),
         },
         get_create_params: Callable[[HttpRequest], dict] = lambda request: {
             **json.loads(request.body)
@@ -136,6 +152,7 @@ class Api:
 
     def list(self, request: HttpRequest):
         params = self.get_list_params(request)
+        print("list params:",params)
         page = int(params.pop("page", 1))
         size = int(params.pop("size", 10))
         orders = str(params.pop("order_by", "id__desc")).split(",")
