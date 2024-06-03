@@ -12,7 +12,6 @@ import pandas
 from openpyxl.styles import Font, Border, Side
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.chart import LineChart,Reference
 
 from app import settings
 from common import serizalize

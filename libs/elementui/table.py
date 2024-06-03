@@ -1,5 +1,4 @@
 import enum
-from typing import Self
 from libs.elementui.base import ElConfirm, ElWidget
 from libs.elementui.form import ElForm
 

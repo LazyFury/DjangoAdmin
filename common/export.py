@@ -2,8 +2,6 @@
 
 import datetime
 
-from click import BOOL
-
 
 class ExportConfig(object):
     def __init__(self,**kwargs) -> None:
