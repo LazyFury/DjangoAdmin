@@ -33,7 +33,6 @@ onMounted(()=>{
       <div class="flex-1">
         <TheWelcome />
         <ElCard shadow="never" class="mt-2">
-          {{ route.meta }}
           <div id="container" class="w-320px h-240px" style="z-index: 1;"></div>
 
         </ElCard>

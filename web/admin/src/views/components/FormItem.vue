@@ -57,6 +57,12 @@
             </div>
         </template>
     </ElInput>
+
+
+    <!-- ！！！Warn:inline 的布局下有对齐的文件，尽量使 formItem 在单独一行 -->
+    <div v-if="field.tips" class="text-xs text-gray mt-1">
+        <div v-html="field.tips"></div>
+    </div>
 </template>
 <script>
 import { request } from '@/api/request'

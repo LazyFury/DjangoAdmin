@@ -6,7 +6,13 @@ from app import settings
 from libs.elementui.base import ElApis
 from libs.elementui.form import ElForm, ElFormItem
 from libs.elementui.menu import ElMenu, ElMenuItem
-from libs.elementui.table import DefActions, ElTable, ElTableAction, ElTableActionType, ElTableColumn
+from libs.elementui.table import (
+    DefActions,
+    ElTable,
+    ElTableAction,
+    ElTableActionType,
+    ElTableColumn,
+)
 from . import api
 
 
@@ -84,7 +90,7 @@ def set_dict_group_menu():
                             prop="description",
                             placeholder="请输入描述",
                         ),
-                        # id 
+                        # id
                         ElFormItem(
                             label="id",
                             prop="id",
@@ -107,11 +113,11 @@ def set_dict_group_menu():
                     props={
                         "target": "_blank",
                         "query_key": "group_id",
-                        "query_value": "id"
+                        "query_value": "id",
                     },
                 ),
                 DefActions.DELETE,
-            ]
+            ],
         ),
         api=ElApis(
             list="/dict-group.list",
@@ -180,7 +186,7 @@ def set_dict_menu():
                     label="分组",
                     width="180",
                     type="link",
-                     props={
+                    props={
                         "url_prefix": "/#/set/dict-group?id=",
                         "url_id": "group_id",
                     },
@@ -230,25 +236,35 @@ def set_dict_menu():
                             prop="name",
                             type="input",
                             placeholder="请输入",
+                            tips="请输入字典名称",
                         ),
                         ElFormItem(
                             label="描述",
                             prop="description",
                             type="input",
                             placeholder="请输入",
+                            tips="请输入字典描述",
                         ),
+                    ],
+                    [
                         ElFormItem(
                             label="key",
                             prop="key",
                             type="input",
                             placeholder="请输入",
+                            tips="key 用于唯一标识字典,推荐使用 group_name 作为前缀 <br> 例如: group_name.key <a href='/' target='_blank'>查看更多</a>",
                         ),
+                    ],
+                    [
                         ElFormItem(
                             label="value",
                             prop="value",
-                            type="input",
+                            type="textarea",
                             placeholder="请输入",
+                            width="80%"
                         ),
+                    ],
+                    [
                         ElFormItem(
                             label="Group",
                             prop="group_id",

@@ -15,7 +15,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 
 from app import settings
 from common import serizalize
-from common.exception import ApiNotFoundError
+from common.exception import ApiForbiddenError, ApiNotFoundError
 from common.export import XlsxExportConfig
 from common.response import ApiJsonResponse
 from common.router import Router
@@ -185,14 +185,14 @@ class Api:
 
     def create(self, request: HttpRequest):
         if not self.config.enable_create:
-            raise ApiNotFoundError("Create is not allowed")
+            raise ApiForbiddenError("Create is not allowed")
         params = self.get_create_params(request)
         obj = self.model.objects.create(**params)
         return ApiJsonResponse.success(self.serizalize(obj))
 
     def update(self, request: HttpRequest):
         if not self.config.enable_update or self.model._meta.db_table in settings.LOCKING_MODIFY_TABLES:
-            raise ApiNotFoundError("Update is not allowed")
+            raise ApiForbiddenError("Update is not allowed")
         params = self.get_update_params(request)
         id = params.get("id")
         if not id:
@@ -209,7 +209,7 @@ class Api:
 
     def delete(self, request: HttpRequest):
         if not self.config.enable_delete or self.model._meta.db_table in settings.LOCKING_DELETE_TABLES:
-            raise ApiNotFoundError("Delete is not allowed")
+            raise ApiForbiddenError("Delete is not allowed")
         params = {
             **json.loads(request.body)
         }
