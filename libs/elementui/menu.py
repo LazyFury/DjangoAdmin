@@ -34,7 +34,7 @@ class ElMenuItem(ElWidget):
         self.forms = forms
         self.type = type
 
-    @jsonGetter
+    @jsonGetter(name="title_lower")
     def title_lower(self):
         return self.title.lower()
 

@@ -40,7 +40,7 @@ class User(AbstractUser, Model):
         ]
     )
 
-    @jsonGetter
+    @jsonGetter(name="avatar_url")
     def avatar_url(self):
         return self.avatar.url if self.avatar else None
 
@@ -75,11 +75,11 @@ class UserToken(Model):
             return False
         return self.expire_at > timezone.now()
 
-    @jsonGetter
+    @jsonGetter(name="username")
     def username(self):
         return self.user.username if self.user else None
     
-    @jsonGetter
+    @jsonGetter(name="ua_cut")
     def ua_cut(self):
         return self.user_agent[:20] if self.user_agent else None
 

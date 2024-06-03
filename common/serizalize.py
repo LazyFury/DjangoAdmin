@@ -70,7 +70,7 @@ class Serozalizer:
             yield field, self.convert(func(self.obj))
 
         for method in self.methods():
-            yield method.func.__name__, self.convert(method(self.obj))
+            yield method.ext.get("name") or  method.func.__name__, self.convert(method(self.obj))
 
     def fields(self):
         for field in vars(self.obj) if hasattr(self.obj,"__dict__") else dir(self.obj):

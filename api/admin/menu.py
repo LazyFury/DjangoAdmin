@@ -6,7 +6,7 @@ from app import settings
 from libs.elementui.base import ElApis
 from libs.elementui.form import ElForm, ElFormItem
 from libs.elementui.menu import ElMenu, ElMenuItem
-from libs.elementui.table import DefActions, ElTable, ElTableColumn
+from libs.elementui.table import DefActions, ElTable, ElTableAction, ElTableActionType, ElTableColumn
 from . import api
 
 
@@ -34,7 +34,234 @@ def menus(request: HttpRequest):
                     permission_menu(),
                 ],
             ),
+            ElMenuItem(
+                title="系统设置",
+                key="dict",
+                icon="ant-design:database-outlined",
+                path="/dict",
+                component="TableView",
+                children=[
+                    set_dict_menu(),
+                    set_dict_group_menu(),
+                ],
+            ),
         ]
+    )
+
+
+def set_dict_group_menu():
+    return ElMenuItem(
+        title="字典组设置",
+        key="dict-group",
+        path="/set/dict-group",
+        component="TableView",
+        table=ElTable(
+            title="字典组设置",
+            columns=[
+                ElTableColumn(prop="name", label="名称", width="180"),
+                ElTableColumn(
+                    prop="key",
+                    label="key",
+                    width="180",
+                ),
+                ElTableColumn(
+                    prop="description",
+                    label="描述",
+                    width="180",
+                ),
+            ],
+            search=ElForm(
+                title="search",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="名称",
+                            prop="name",
+                            placeholder="请输入名称",
+                        ),
+                        ElFormItem(
+                            label="描述",
+                            prop="description",
+                            placeholder="请输入描述",
+                        ),
+                        # id 
+                        ElFormItem(
+                            label="id",
+                            prop="id",
+                            type="input",
+                            placeholder="请输入",
+                            hidden=True,
+                        ),
+                    ]
+                ],
+            ),
+            actions=[
+                DefActions.EDIT,
+                ElTableAction(
+                    label="查看字典",
+                    form_key="",
+                    api_key="",
+                    icon="ant-design:search",
+                    path="/set/dict",
+                    type=ElTableActionType.ROUTER,
+                    props={
+                        "target": "_blank",
+                        "query_key": "group_id",
+                        "query_value": "id"
+                    },
+                ),
+                DefActions.DELETE,
+            ]
+        ),
+        api=ElApis(
+            list="/dict-group.list",
+            delete="/dict-group.delete",
+            create="/dict-group.create",
+            update="/dict-group.update",
+            export="/dict-group.export",
+        ),
+        forms={
+            "create": ElForm(
+                title="创建字典组",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="名称",
+                            prop="name",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                        ElFormItem(
+                            label="key",
+                            prop="key",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                        ElFormItem(
+                            label="描述",
+                            prop="description",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                    ],
+                ],
+            ),
+        },
+    )
+
+
+def set_dict_menu():
+    return ElMenuItem(
+        title="字典设置",
+        key="dict",
+        path="/set/dict",
+        component="TableView",
+        table=ElTable(
+            title="字典设置",
+            columns=[
+                ElTableColumn(prop="name", label="名称", width="180"),
+                ElTableColumn(
+                    prop="description",
+                    label="描述",
+                    width="180",
+                ),
+                ElTableColumn(
+                    prop="key",
+                    label="key",
+                    width="180",
+                ),
+                ElTableColumn(
+                    prop="value",
+                    label="value",
+                    width="180",
+                ),
+                ElTableColumn(
+                    prop="group_name",
+                    label="分组",
+                    width="180",
+                    type="link",
+                     props={
+                        "url_prefix": "/#/set/dict-group?id=",
+                        "url_id": "group_id",
+                    },
+                ),
+            ],
+            search=ElForm(
+                title="search",
+                rows=[
+                    [
+                        # group_id
+                        ElFormItem(
+                            label="分组",
+                            prop="group_id",
+                            type="select",
+                            width="240px",
+                            props={
+                                "remoteDataApi": "/dict-group.list",
+                            },
+                        ),
+                        ElFormItem(
+                            label="名称",
+                            prop="name",
+                            placeholder="请输入名称",
+                        ),
+                    ]
+                ],
+            ),
+            filters=ElForm(
+                title="filters",
+                rows=[],
+            ),
+        ),
+        api=ElApis(
+            list="/dict.list",
+            delete="/dict.delete",
+            create="/dict.create",
+            update="/dict.update",
+            export="/dict.export",
+        ),
+        forms={
+            "create": ElForm(
+                title="创建字典",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="名称",
+                            prop="name",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                        ElFormItem(
+                            label="描述",
+                            prop="description",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                        ElFormItem(
+                            label="key",
+                            prop="key",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                        ElFormItem(
+                            label="value",
+                            prop="value",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                        ElFormItem(
+                            label="Group",
+                            prop="group_id",
+                            type="select",
+                            width="320px",
+                            props={
+                                "remoteDataApi": "/dict-group.list",
+                            },
+                        ),
+                    ],
+                ],
+            ),
+        },
     )
 
 

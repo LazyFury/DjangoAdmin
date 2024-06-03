@@ -32,8 +32,9 @@
             <div v-if="searchFormFields && searchFormFields.length > 0">
                 <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-2">
                     <div v-for="fields in searchFormFields">
-                        <ElFormItem v-for="field in fields" :key="field.prop" :label="field.label" :prop="field.prop"
-                            :class="[]" :style="{ 'min-width': field.width || '100px' }">
+                        <ElFormItem v-show="!field.hidden" v-for="field in fields" :key="field.prop"
+                            :label="field.label" :prop="field.prop" :class="[]"
+                            :style="{ 'min-width': field.width || '100px' }">
                             <FormItem :field="field" v-model="searchForm[field.prop]"></FormItem>
                         </ElFormItem>
                     </div>
@@ -120,7 +121,8 @@
 
                             <!-- link  -->
                             <ElLink type="primary" v-if="column.type == 'link'" :underline="false"
-                                :href="makeUrl(row, column, column.prop)" :target="column.url_target || '_self'">
+                                :href="makeUrl(row, column, column.props?.url_id || column.prop)"
+                                :target="column.props?.url_target || '_self'">
                                 {{ column.prefix }}{{ row[column.prop] }}{{ column.suffix }}
                             </ElLink>
                         </template>
@@ -348,6 +350,15 @@ export default {
                 if (action.type == 'form') {
                     return this.handleRowActionForm(row, action)
                 }
+                if (action.type == 'router') {
+                    let query = {
+                        [action.props?.query_key]: row[action.props?.query_value]
+                    }
+                    return this.$router.push({
+                        path: action.path,
+                        query
+                    })
+                }
             }
 
             if (action.confirm) {
@@ -441,6 +452,10 @@ export default {
             this.load()
             // reset table sort
             this.$refs.tableRef.clearSort()
+            // url 
+            this.$router.push({
+                query: {}
+            })
         },
         handlePageSizeChange(val) {
             this.pagination.pageSize = val
@@ -536,12 +551,14 @@ export default {
             })
         },
         makeUrl(row, column, key) {
-            let url = column.url_prefix || ""
+            let url = column.props?.url_prefix || ""
             return url + row[key]
         },
         handleQueryToSearchForm(query) {
+            let flatFields = this.searchFormFields.reduce((acc, cur) => acc.concat(cur), [])
+            console.log(flatFields)
             for (let key in query) {
-                if (this.searchFormFields.find(v => v.name === key)) {
+                if (flatFields.find(v => v.prop === key)) {
                     this.searchForm[key] = query[key]
                 }
             }

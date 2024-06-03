@@ -1,6 +1,7 @@
 from django.db import models
 
 from common.models import Model
+from common.wrapped import jsonGetter
 
 # Create your models here.
 class Dict(Model):
@@ -12,6 +13,14 @@ class Dict(Model):
 
     def __str__(self):
         return self.key
+    
+    @jsonGetter(name='group_name')
+    def group_name(self):
+        return self.group.name
+    
+    @jsonGetter(name='group_id')
+    def get_group_id(self):
+        return self.group.id
 
     class Meta:
         verbose_name = 'Dictionary'
@@ -26,7 +35,7 @@ class DictGroup(Model):
         return self.name
     
     def dicts(self):
-        return self.dicts.all()
+        return Dict.objects.filter(group=self)
 
     class Meta:
         verbose_name = 'Dictionary Group'

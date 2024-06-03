@@ -191,7 +191,7 @@ class Api:
         return ApiJsonResponse.success(self.serizalize(obj))
 
     def update(self, request: HttpRequest):
-        if not self.config.enable_update:
+        if not self.config.enable_update or self.model._meta.db_table in settings.LOCKING_MODIFY_TABLES:
             raise ApiNotFoundError("Update is not allowed")
         params = self.get_update_params(request)
         id = params.get("id")
@@ -208,7 +208,7 @@ class Api:
         return ApiJsonResponse.success(self.serizalize(obj))
 
     def delete(self, request: HttpRequest):
-        if not self.config.enable_delete:
+        if not self.config.enable_delete or self.model._meta.db_table in settings.LOCKING_DELETE_TABLES:
             raise ApiNotFoundError("Delete is not allowed")
         params = {
             **json.loads(request.body)

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "core",
     "modules.forms",
     "modules.invite",
+    "modules.settings",
 ]
 
 AUTH_USER_MODEL = "core.User"
@@ -182,3 +183,6 @@ LOGGING = {
 
 ## 权限默认的content_type_id
 PERMISSION_DEFAULT_CONTENT_TYPE_ID = 8
+
+LOCKING_DELETE_TABLES = ["settings_dictgroup", "settings_dict"]
+LOCKING_MODIFY_TABLES = []

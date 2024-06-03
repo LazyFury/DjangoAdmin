@@ -103,7 +103,7 @@ export default {
             if (this.field.options) {
                 this.options = this.field.options
             } else
-            if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
+            if (this.field.props?.remoteDataApi) request.get(this.field.props?.remoteDataApi).then(res => {
                 this.options = (res.data?.data?.list || []).map(v => {
                     let label_name = this.field.props?.label || 'name'
                     let backend_label_names = ['name', 'title','label','username']
@@ -137,7 +137,7 @@ export default {
                     
                     return {
                         label,
-                        value
+                        value:value+""
                     }
                 })
             })
@@ -149,6 +149,9 @@ export default {
 
         if (this.field.type == 'checkbox'){
             this.value = this.value || []
+        }
+        if (this.field.type == 'switch'){
+            this.value = !!this.value
         }
     }
 };
