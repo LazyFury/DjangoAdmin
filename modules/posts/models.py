@@ -114,9 +114,13 @@ class Article(Model):
     def get_tag_names(self):
         return [tag.tag for tag in ArticleTag.objects.filter(id__in=self.get_tag_ids(self))]
     
+    def get_content_desc_without_html(self, length=100):
+        import re
+        return re.sub(r'<[^>]+>', '', self.content[:length])
+
     @jsonGetter(name="description")
     def get_description(self):
-        return self.description if self.description else self.content[:100] or 'No description'
+        return self.description if self.description else self.get_content_desc_without_html(100) or 'No description'
 
     
     def save(self, *args, **kwargs):

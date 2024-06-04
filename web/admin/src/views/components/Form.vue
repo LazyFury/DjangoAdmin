@@ -16,7 +16,7 @@
                         width: field.width
                     }">
                         <slot :name="field.prop" :fields="fields" :field="field" :form="form">
-                            <FormItem :field="field" v-model="form[field.prop]"></FormItem>
+                            <FormItem :field="field" :key="field.prop+form['id']" v-model="form[field.prop]"></FormItem>
                         </slot>
                     </ElFormItem>
                 </template>

@@ -307,11 +307,24 @@ def cms_article_menu():
                     ],
                     [
                         ElFormItem(
+                            label="描述",
+                            prop="description",
+                            type="textarea",
+                            placeholder="请输入",
+                            width="540px",
+                            required=False,
+                            props={
+                                "maxlength": 255,
+                                "show-word-limit": True,
+                            },
+                        ),
+                    ],
+                    [
+                        ElFormItem(
                             label="分类",
                             prop="category_id",
                             type="select",
                             placeholder="请输入",
-                            required=False,
                             width="320px",
                             props={
                                 "remoteDataApi": "/article-category.list",
@@ -322,7 +335,6 @@ def cms_article_menu():
                             prop="author_id",
                             type="select",
                             placeholder="请输入",
-                            required=False,
                             width="320px",
                             props={
                                 "remoteDataApi": "/user.list",
@@ -335,10 +347,10 @@ def cms_article_menu():
                             prop="content",
                             type="quill",
                             placeholder="请输入",
-                            width="80%",
+                            width="96%",
                             props={
                                 "rows": 10,
-                                "style": "height: 320px;width: 100%;",
+                                "style": "width: 100%;",
                             },
                         ),
                     ],

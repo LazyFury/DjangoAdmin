@@ -47,9 +47,7 @@ app.use(function (vm) {
     vm.config.globalProperties.$numeral = numeral
 
     vm.config.globalProperties.$img = (url) => {
-        console.log(url)    
         const target =  config.url.IMG_URL + url
-        console.log(target)
         return target
     }
 

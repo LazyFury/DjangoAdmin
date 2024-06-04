@@ -1,11 +1,13 @@
 <template>
+    <div id="toolbar"></div>
     <div id="editor"></div>
-    <div style="height: 60px;"></div>
 </template>
 
 <script>
+    let quill;
     export default{
-        prop:{
+        emits: ['update:modelValue', 'change'],
+        props:{
             modelValue:{
                 type: String,
                 default: ''
@@ -13,7 +15,7 @@
         },
         data(){
             return {
-                value: ''
+                value: '',
             }
         },
         watch:{
@@ -32,10 +34,34 @@
         },
         mounted(){
             let app = this
-            var quill = new Quill('#editor', {
+            let tools = [
+                ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                ['blockquote', 'code-block'],
+                [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+                [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+                [{ 'direction': 'rtl' }],                         // text direction
+                [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                [{ 'font': [] }],
+                [{ 'align': [] }],
+                ['clean'],                                         // remove formatting button
+                ['link', 'image', 'video']                         // link and image, video
+        ];
+            quill = new Quill('#editor', {
                 theme: 'snow',
                 placeholder: 'Compose an epic...',
+                modules: {
+                    toolbar: tools
+                }
             });
+
+            setTimeout(() => {
+                quill.root.innerHTML = this.value
+            }, 100);
+
             quill.on('text-change', function(delta, oldDelta, source) {
                 console.log('text-change', delta, oldDelta, source);
                 app.$emit('update:modelValue', quill.root.innerHTML)
@@ -48,5 +74,9 @@
                 console.log("blur", range, oldRange);
             });
         },
+        destroyed(){
+            quill.root.innerHTML = ''
+            quill = null
+        }
     }
 </script>
