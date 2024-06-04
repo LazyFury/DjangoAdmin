@@ -87,10 +87,11 @@
                     <ElTableColumn type="selection" width="55"></ElTableColumn>
 
                     <!-- id  -->
-                    <ElTableColumn label="ID" width="80" prop="id"></ElTableColumn>
+                    <ElTableColumn label="ID" :width="table.expand ? 120 : 80" prop="id"></ElTableColumn>
 
                     <ElTableColumn v-for="column in columns" :key="column.prop"
-                        :sortable="column.sortable ? 'custom' : false" :label="column.label" :width="column.width">
+                        :sortable="column.sortable ? 'custom' : false" :label="column.label" :width="column.width"
+                        v-bind="column.props">
                         <template #default="{ row }" v-if="!column.slot">
                             <div :class="[column.className]" v-if="column.type == 'render'">
                                 {{ column.render(row) }}
@@ -118,6 +119,13 @@
                                 style="width: 50px; height: 50px;"></ElImage>
                             <ElTag v-if="column.type == 'tag'" :type="column.props?.type || ''">{{ row[column.prop] }}
                             </ElTag>
+
+                            <!-- tags  -->
+                            <div v-if="column.type == 'tags'" class="flex flex-row flex-wrap gap-1">
+                                <ElTag v-for="tag in row[column.prop]" :key="tag" :type="column.props?.type || ''">
+                                    {{ tag }}
+                                </ElTag>
+                            </div>
 
                             <!-- link  -->
                             <ElLink type="primary" v-if="column.type == 'link'" :underline="false"
@@ -192,6 +200,9 @@ export default {
     computed: {
         api() {
             return this.meta.api
+        },
+        table() {
+            return this.meta.table || {}
         },
         searchFormFields() {
             return this.meta.table?.search?.rows || []

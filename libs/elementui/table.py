@@ -110,6 +110,7 @@ class ElTable(ElWidget):
                 },
             ),
         ],
+        **kwargs,
     ):
         self.title = title
         self.columns = columns
@@ -117,3 +118,5 @@ class ElTable(ElWidget):
         self.filters = filters
         self.actions = actions
         self.batch_actions = batch_actions
+        for key, value in kwargs.items():
+            setattr(self, key, value)

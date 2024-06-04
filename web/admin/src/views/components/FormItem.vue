@@ -1,14 +1,15 @@
 <template>
     <!-- textarea  -->
     <ElInput @change="handleUpdate" v-model="value" v-if="field.type == 'textarea'" type="textarea"
-        :placeholder="field.placeholder"></ElInput>
+        :placeholder="field.placeholder" v-bind="field.props"></ElInput>
     <!-- password  -->
     <ElInput @change="handleUpdate" v-model="value" v-if="field.type == 'password'" type="password"
         :placeholder="field.placeholder">
     </ElInput>
     <!-- select  -->
     <div v-if="field.type == 'select'" class="flex flex-row items-center w-full">
-        <ElSelect class="w-full" @change="handleUpdate" v-model="value" :placeholder="field.placeholder">
+        <ElSelect class="w-full" @change="handleUpdate" v-model="value" :placeholder="field.placeholder"
+            v-bind="field.props">
             <ElOption v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></ElOption>
         </ElSelect>
         <div class="mr-2"></div>
@@ -17,9 +18,15 @@
             <Icon icon="el:refresh" class=""></Icon>
         </ElButton>
     </div>
+
+    <!-- cascader  -->
+    <ElCascader @change="handleUpdate" v-model="value" v-if="field.type == 'cascader'" :options="options"
+        :props="field.props" :placeholder="field.placeholder" v-bind="field.props"></ElCascader>
+
+
     <!-- switch -->
-    <ElSwitch @change="handleUpdate" v-model="value" v-if="field.type == 'switch'"
-        :active-text="field.checkedChildren"></ElSwitch>
+    <ElSwitch @change="handleUpdate" v-model="value" v-if="field.type == 'switch'" :active-text="field.checkedChildren">
+    </ElSwitch>
 
     <!-- checkbox  group  -->
     <ElCheckboxGroup @change="handleUpdate" v-model="value" v-if="field.type == 'checkbox'">
@@ -42,8 +49,10 @@
     </ElRadioGroup>
 
     <!-- input  -->
-    <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'" v-if="!field.type || field.type == 'input'"
-        :placeholder="field.placeholder">
+    <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'"
+        v-if="!field.type || field.type == 'input'" :placeholder="field.placeholder"
+        v-bind="field.props"
+        >
         <!-- suffix  -->
         <template v-if="field.suffix" #suffix>
             <div>
@@ -58,6 +67,11 @@
         </template>
     </ElInput>
 
+    <!-- quill editor  -->
+    <div v-if="field.type == 'quill'" v-bind="field.props" >
+        <QuillEditor v-model="value" @change="handleUpdate" ></QuillEditor>
+    </div>
+
 
     <!-- ！！！Warn:inline 的布局下有对齐的文件，尽量使 formItem 在单独一行 -->
     <div v-if="field.tips" class="text-xs text-gray mt-1">
@@ -67,8 +81,9 @@
 <script>
 import { request } from '@/api/request'
 import { ElCheckbox } from 'element-plus';
+import QuillEditor from '@/components/QuillEditor.vue'
 export default {
-    components: { ElCheckbox },
+    components: { ElCheckbox, QuillEditor},
     props: {
         field: {
             type: Object,
@@ -95,68 +110,76 @@ export default {
         },
         value: {
             handler(val) {
-                this.$emit('update:modelValue', val)
-                this.$emit('change', val)
+                this.$emit('update:modelValue', this.progressValue(val))
+                this.$emit('change', this.progressValue(val))
             }
         }
     },
     computed: {},
     methods: {
         handleUpdate(val) {
-            this.$emit('update:modelValue', val)
+            this.$emit('update:modelValue', this.progressValue(val))
+        },
+        progressValue(v) {
+            if (this.field.type == 'cascader' && !this.field?.props?.multiple) return v ? v[v.length - 1] : v
+            return v
+        },
+        progressOption(v) {
+            let label_name = this.field.props?.label || 'name'
+            let backend_label_names = ['name', 'title', 'label', 'username']
+            let value_name = this.field.props?.value || 'id'
+            let backend_value_names = ['id', 'value']
+
+            let label = ""
+            let value = ""
+
+            if (v[label_name]) {
+                label = v[label_name]
+            }
+
+            if (v[value_name]) {
+                value = v[value_name]
+            }
+
+            for (let i = 0; i < backend_label_names.length; i++) {
+                if (v[backend_label_names[i]]) {
+                    label = v[backend_label_names[i]]
+                    break
+                }
+            }
+
+            for (let i = 0; i < backend_value_names.length; i++) {
+                if (v[backend_value_names[i]]) {
+                    value = v[backend_value_names[i]]
+                    break
+                }
+            }
+
+            return {
+                label,
+                value: value + "",
+                children: v.children ? v.children.map(this.progressOption) : []
+            }
         },
         getOptions() {
             if (this.field.options) {
                 this.options = this.field.options
             } else
-            if (this.field.props?.remoteDataApi) request.get(this.field.props?.remoteDataApi).then(res => {
-                this.options = (res.data?.data?.list || []).map(v => {
-                    let label_name = this.field.props?.label || 'name'
-                    let backend_label_names = ['name', 'title','label','username']
-                    let value_name = this.field.props?.value || 'id'
-                    let backend_value_names = ['id', 'value']
-
-                    let label = ""
-                    let value = ""
-
-                    if(v[label_name]){
-                        label = v[label_name]
-                    }
-
-                    if(v[value_name]){
-                        value = v[value_name]
-                    }
-
-                    for (let i = 0; i < backend_label_names.length; i++) {
-                        if (v[backend_label_names[i]]) {
-                            label = v[backend_label_names[i]]
-                            break
-                        }
-                    }
-
-                    for (let i = 0; i < backend_value_names.length; i++) {
-                        if (v[backend_value_names[i]]) {
-                            value = v[backend_value_names[i]]
-                            break
-                        }
-                    }
-                    
-                    return {
-                        label,
-                        value:value+""
-                    }
+                if (this.field.props?.remoteDataApi) request.get(this.field.props?.remoteDataApi).then(res => {
+                    let data = res.data?.data?.list || []
+                    let options = data.map(this.progressOption)
+                    this.options = options
                 })
-            })
         }
     },
     created() { },
     mounted() {
         this.getOptions()
 
-        if (this.field.type == 'checkbox'){
+        if (this.field.type == 'checkbox') {
             this.value = this.value || []
         }
-        if (this.field.type == 'switch'){
+        if (this.field.type == 'switch') {
             this.value = !!this.value
         }
     }
