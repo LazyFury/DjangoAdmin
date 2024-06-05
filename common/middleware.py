@@ -87,11 +87,17 @@ def auth_middleware(get_response):
         user = None
         if token:
             user = UserToken.find_user_by_token(token)
+            token = UserToken.objects.filter(token=token).first()
+            
         request.user = user if user else AnonymousUser()
 
-        if not request.user.is_authenticated and request.path not in settings.AUTH_WHITE_LIST:
-            return ApiJsonResponse.error_response(ApiNotAuthorizedError())
-        
+        if request.path not in settings.AUTH_WHITE_LIST:
+            if not token:
+                raise ApiNotAuthorizedError("Token not found")
+            if not request.user.is_authenticated: 
+                return ApiJsonResponse.error_response(ApiNotAuthorizedError())
+            if not token.valid():
+                raise ApiNotAuthorizedError("Token expired")
         response = get_response(request)
         return response
 

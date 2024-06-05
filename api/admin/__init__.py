@@ -1,3 +1,4 @@
+from numpy import block
 from common.api import Api
 from common.middleware import auth_middleware, get_user_middleware, request_aspects
 from common.router import Router
@@ -20,6 +21,7 @@ def get_permission_content_type_str(permission: Permission):
     return f"{t(permission.content_type.app_label)}.{t(permission.content_type.model)}"
 
 
+# 用户管理
 Api(
     User,
     config=Api.Config(
@@ -39,6 +41,8 @@ Api(
     ),
 ).register(api, "/permission")
 
+
+# 设置
 Api(DictGroup).register(api, "/dict-group")
 Api(
     Dict,
@@ -47,10 +51,28 @@ Api(
     ),
 ).register(api, "/dict")
 
+
+# 文章内容管理
 Api(
     Article,
     get_update_params=lambda request: dict_utils.filter_with_not_allow_keys(
-        {**json.loads(request.body)}, ["author", "category"]
+        dict_utils.modify_with_callback(
+            {
+                **json.loads(request.body),
+            },
+            {
+                "tag_ids": lambda data: ",".join(data.get("tag_ids", [])),
+            },
+        ),
+        ["author", "category"],
+    ),
+    get_create_params=lambda request: dict_utils.modify_with_callback(
+        {
+            **json.loads(request.body),
+        },
+        {
+            "tag_ids": lambda data: ",".join(data.get("tag_ids", [])),
+        },
     ),
 ).register(api, "/article")
 
@@ -60,7 +82,7 @@ Api(
     get_update_params=lambda request: dict_utils.filter_with_allow_keys(
         {**json.loads(request.body)}, ["parent_id", "id", "name"]
     ),
-    get_export_params=lambda request:{**request.GET.dict()},
+    get_export_params=lambda request: {**request.GET.dict()},
 ).register(api, "/article-category")
 
 Api(ArticleTag).register(api, "/article-tag")

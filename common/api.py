@@ -65,9 +65,7 @@ class Api:
         get_list_params: Callable[[HttpRequest], dict] = lambda request: {
             **progress_get_query_params(request),
         },
-        get_export_params: Callable[[HttpRequest], dict] = lambda request: {
-            **progress_get_query_params(request),
-        },
+        get_export_params: Callable[[HttpRequest], dict] = None, # type: ignore
         get_create_params: Callable[[HttpRequest], dict] = lambda request: {
             **json.loads(request.body)
         },
@@ -232,9 +230,10 @@ class Api:
         return ApiJsonResponse.success("Delete Success")
     
     def export(self,request:HttpRequest):
-        params = self.get_export_params(request)
+        params = self.get_export_params(request) if self.get_export_params else self.get_list_params(request)
         orders = str(params.pop("order_by", "id__desc")).split(",")
 
+        # 组织查询
         query = self.model.objects.filter(**params).filter(
             **self.extra_search_condition(request)
         )
@@ -245,8 +244,7 @@ class Api:
         print("export api:",query.query)
         data = query
         json_data = [self.serizalize(obj,with_foreign_keys=False) for obj in data]
-        print("export data:",json_data)
-        print("hidden:",self.hidden)
+        # print("export data:",json_data)
         dataframe = pandas.read_json(StringIO(json.dumps(json_data)))
         file = self.get_export_filename()
         self.to_excel(dataframe, file)

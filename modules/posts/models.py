@@ -147,9 +147,3 @@ class Article(Model):
     @jsonGetter(name="description")
     def get_description(self):
         return self.description if self.description else self.get_content_desc_without_html(100) or 'No description'
-
-    
-    def save(self, *args, **kwargs):
-        if self.tag_ids and isinstance(self.tag_ids, list):
-            self.tag_ids = ",".join(self.tag_ids)
-        super().save(*args, **kwargs)
