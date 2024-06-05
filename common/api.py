@@ -53,6 +53,7 @@ class Api:
     get_list_params: Callable[[HttpRequest], dict]
     get_create_params: Callable[[HttpRequest], dict]
     get_update_params: Callable[[HttpRequest], dict]
+    get_export_params: Callable[[HttpRequest], dict]
     extra: dict[str, Callable[[models.Model], Any]]
     hidden: list[str]
     config: Config
@@ -62,6 +63,9 @@ class Api:
         self,
         model: models.base.ModelBase,
         get_list_params: Callable[[HttpRequest], dict] = lambda request: {
+            **progress_get_query_params(request),
+        },
+        get_export_params: Callable[[HttpRequest], dict] = lambda request: {
             **progress_get_query_params(request),
         },
         get_create_params: Callable[[HttpRequest], dict] = lambda request: {
@@ -90,6 +94,7 @@ class Api:
         self.get_list_params = get_list_params
         self.get_create_params = get_create_params
         self.get_update_params = get_update_params
+        self.get_export_params = get_export_params
         self.extra = extra
         self.config = config
         self.hidden = hidden
@@ -227,7 +232,7 @@ class Api:
         return ApiJsonResponse.success("Delete Success")
     
     def export(self,request:HttpRequest):
-        params = self.get_list_params(request)
+        params = self.get_export_params(request)
         orders = str(params.pop("order_by", "id__desc")).split(",")
 
         query = self.model.objects.filter(**params).filter(

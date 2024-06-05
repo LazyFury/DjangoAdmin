@@ -25,7 +25,7 @@ Api(
     config=Api.Config(
         enable_delete=False,
     ),
-    hidden=["password"]
+    hidden=["password"],
 ).register(api, "/user")
 Api(Group).register(api, "/user-group")
 Api(UserToken).register(api, "/user-log")
@@ -40,20 +40,29 @@ Api(
 ).register(api, "/permission")
 
 Api(DictGroup).register(api, "/dict-group")
-Api(Dict,get_update_params=lambda request:dict_utils.filter_with_not_allow_keys({
-    **json.loads(request.body)
-},["group"])).register(api, "/dict")
+Api(
+    Dict,
+    get_update_params=lambda request: dict_utils.filter_with_not_allow_keys(
+        {**json.loads(request.body)}, ["group"]
+    ),
+).register(api, "/dict")
 
-Api(Article,get_update_params=lambda request:dict_utils.filter_with_not_allow_keys({
-    **json.loads(request.body)
-},["author","category"]
-)).register(api, "/article")
-Api(ArticleCategory,get_list_params=lambda request:{
-    **request.GET.dict(),
-    "parent_id__isnull":True
-},get_update_params=lambda request:dict_utils.filter_with_allow_keys({
-    **json.loads(request.body)
-},["parent_id","id","name"])).register(api, "/article-category")
+Api(
+    Article,
+    get_update_params=lambda request: dict_utils.filter_with_not_allow_keys(
+        {**json.loads(request.body)}, ["author", "category"]
+    ),
+).register(api, "/article")
+
+Api(
+    ArticleCategory,
+    get_list_params=lambda request: {**request.GET.dict(), "parent_id__isnull": True},
+    get_update_params=lambda request: dict_utils.filter_with_allow_keys(
+        {**json.loads(request.body)}, ["parent_id", "id", "name"]
+    ),
+    get_export_params=lambda request:{**request.GET.dict()},
+).register(api, "/article-category")
+
 Api(ArticleTag).register(api, "/article-tag")
 
 from .menu import *  # noqa: F401, E402, F403

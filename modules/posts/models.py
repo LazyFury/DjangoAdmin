@@ -1,6 +1,7 @@
 from django.db import models
 
 from common.exception import ApiError
+from common.export import XlsxExportConfig, XlsxExportField
 from common.models import Model
 from common.wrapped import jsonGetter
 
@@ -20,6 +21,15 @@ class ArticleCategory(Model):
     description = models.TextField(blank=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE,null=True, blank=True)
 
+
+    xlsx_config:XlsxExportConfig = XlsxExportConfig(
+        fields=[
+            XlsxExportField(prop='name', label='名称'),
+            XlsxExportField(prop='description', label='描述'),
+            XlsxExportField(prop='parent_name', label='父分类'),
+        ]
+    )
+    
     def __str__(self):
         return self.name
     
@@ -83,6 +93,18 @@ class Article(Model):
     tag_ids = models.CharField(max_length=255, blank=True)
     category = models.ForeignKey(ArticleCategory, on_delete=models.CASCADE, related_name='articles')
 
+    xlsx_config:XlsxExportConfig = XlsxExportConfig(
+        fields=[
+            XlsxExportField(prop='title', label='标题'),
+            XlsxExportField(prop='description', label='描述'),
+            XlsxExportField(prop='content', label='内容'),
+            XlsxExportField(prop='is_published', label='是否发布'),
+            XlsxExportField(prop='author_name', label='作者'),
+            XlsxExportField(prop='category_name', label='分类'),
+            XlsxExportField(prop='tag_names_join', label='标签'),
+        ]
+    )
+
     def __str__(self):
         return self.title
     
@@ -114,6 +136,10 @@ class Article(Model):
     def get_tag_names(self):
         return [tag.tag for tag in ArticleTag.objects.filter(id__in=self.get_tag_ids(self))]
     
+    @jsonGetter(name='tag_names_join')
+    def get_tag_names_join(self):
+        return ','.join(self.get_tag_names(self))
+
     def get_content_desc_without_html(self, length=100):
         import re
         return re.sub(r'<[^>]+>', '', self.content[:length])
