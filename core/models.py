@@ -6,7 +6,6 @@ from django.contrib.auth.models import AbstractUser
 from django.http import HttpRequest
 from django.utils import timezone
 
-from common.exception import ApiNotAuthorizedError
 from common.export import XlsxExportConfig, XlsxExportField
 from common.wrapped import jsonGetter
 from common.models import Model

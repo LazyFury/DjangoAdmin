@@ -1,6 +1,6 @@
 import json
 from typing import Any
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 
 from common import serizalize
 from common.exception import ApiBadRequestError, ApiError

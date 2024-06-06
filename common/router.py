@@ -1,9 +1,6 @@
-import os
-import traceback
 from typing import Any, Callable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
-from app import settings
 from common.exception import ApiError
 from common.response import ApiJsonResponse
 
