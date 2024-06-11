@@ -34,7 +34,6 @@ class ContextHolder:
                 "path": request.path,
                 "method": request.method,
                 "query": request.GET.dict(),
-                "body": request.body.decode("utf-8"),
             }
         )
         return md5(str.encode("utf-8")).hexdigest()

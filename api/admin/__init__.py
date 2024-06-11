@@ -1,6 +1,7 @@
 from common.api import Api
 from common.middleware import auth_middleware, get_user_middleware, is_superuser_middleware, request_aspects
 from common.router import Router
+from common.tools.upload import upload_handler
 from common.utils import dict_utils
 from core.models import User, UserToken
 from django.contrib.auth.models import Group, Permission
@@ -20,6 +21,7 @@ api.use(is_superuser_middleware,sort=4)
 def get_permission_content_type_str(permission: Permission):
     return f"{t(permission.content_type.app_label)}.{t(permission.content_type.model)}"
 
+api.post("/common/upload")(upload_handler)
 
 # 用户管理
 Api(

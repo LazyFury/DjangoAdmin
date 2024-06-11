@@ -106,6 +106,8 @@ def auth_middleware(get_response):
 
 def is_superuser_middleware(get_response):
     def wrapper(request):
+        if request.path in settings.AUTH_WHITE_LIST:
+            return get_response(request)
         if not request.user.is_authenticated:
             raise ApiNotAuthorizedError("Not Authenticated")
         if not request.user.is_superuser:

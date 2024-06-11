@@ -15,18 +15,19 @@ class XlsxExportField(object):
     def __init__(self,prop:str,label:str,type:str="",formater:str="",sort:int=0,sum:bool = False) -> None:
         self.prop = prop
         self.label = label
-        self.type = type
+        self.type = type # deprecated
         self.formater = formater
         self.sort = sort
         self.sum = sum
 
     def format(self,value):
         print("xlsx format:",self.type,value)
-        if self.type == "date" and isinstance(value,datetime.datetime):
+
+        if isinstance(value,datetime.datetime):
             if self.formater == "":
                 self.formater = self.DATE_FORMAT_STYLE
             return value.strftime(self.formater)
-        if self.type == "bool" and isinstance(value,bool):
+        if isinstance(value,bool):
             if self.formater == "":
                 self.formater = self.BOOL_FORMAT_STYLE
             TrueValue,FalseValue = self.formater.split(",")

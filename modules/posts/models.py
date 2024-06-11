@@ -98,7 +98,7 @@ class Article(Model):
             XlsxExportField(prop='title', label='标题'),
             XlsxExportField(prop='description', label='描述'),
             XlsxExportField(prop='content', label='内容'),
-            XlsxExportField(prop='is_published', label='是否发布'),
+            XlsxExportField(prop='is_published', label='是否发布',formater="是,否",type="bool"),
             XlsxExportField(prop='author_name', label='作者'),
             XlsxExportField(prop='category_name', label='分类'),
             XlsxExportField(prop='tag_names_join', label='标签'),

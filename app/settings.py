@@ -137,11 +137,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-AUTH_WHITE_LIST = [
-    "/admin/api/login",
-    "/admin/api/logout",
-    "/admin/api/menus",
-]
+
 
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -181,8 +177,16 @@ LOGGING = {
     },
 }
 
+
+AUTH_WHITE_LIST = [
+    "/admin/api/login",
+    "/admin/api/logout",
+    "/admin/api/menus",
+    "/admin/api/common/upload",
+]
 ## 权限默认的content_type_id
 PERMISSION_DEFAULT_CONTENT_TYPE_ID = 8
 
 LOCKING_DELETE_TABLES = ["settings_dictgroup", "settings_dict"]
 LOCKING_MODIFY_TABLES = []
+ALLOW_FILE_TYPE = ["image/png", "image/jpeg", "image/gif", "video/mp4"]
