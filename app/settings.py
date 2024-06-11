@@ -189,4 +189,8 @@ PERMISSION_DEFAULT_CONTENT_TYPE_ID = 8
 
 LOCKING_DELETE_TABLES = ["settings_dictgroup", "settings_dict"]
 LOCKING_MODIFY_TABLES = []
+
 ALLOW_FILE_TYPE = ["image/png", "image/jpeg", "image/gif", "video/mp4"]
+ALLOW_IMAGE_TYPE = ["image/png", "image/jpeg", "image/gif"]
+ALLOW_VIDEO_TYPE = ["video/mp4","video/avi","video/wmv","video/flv","video/3gp"]
+MAX_FILE_SIZE = 10 * 1024 * 1024 # 10MB
