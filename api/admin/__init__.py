@@ -1,5 +1,5 @@
 from common.api import Api
-from common.middleware import auth_middleware, get_user_middleware, request_aspects
+from common.middleware import auth_middleware, get_user_middleware, is_superuser_middleware, request_aspects
 from common.router import Router
 from common.utils import dict_utils
 from core.models import User, UserToken
@@ -14,6 +14,7 @@ api = Router(prefix="/admin/api")
 api.use(request_aspects, sort=0)
 api.use(get_user_middleware, sort=3)
 api.use(auth_middleware, sort=2)
+api.use(is_superuser_middleware,sort=4)
 
 
 def get_permission_content_type_str(permission: Permission):

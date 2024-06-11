@@ -102,3 +102,15 @@ def auth_middleware(get_response):
         return response
 
     return wrapper
+
+
+def is_superuser_middleware(get_response):
+    def wrapper(request):
+        if not request.user.is_authenticated:
+            raise ApiNotAuthorizedError("Not Authenticated")
+        if not request.user.is_superuser:
+            raise ApiNotAuthorizedError("Not SuperUser")
+        response = get_response(request)
+        return response
+
+    return wrapper

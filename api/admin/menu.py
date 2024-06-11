@@ -1,6 +1,4 @@
-from turtle import width
 from django.http import HttpRequest
-from numpy import sort
 
 from app import settings
 from libs.elementui.base import ElApis
@@ -776,7 +774,9 @@ def user_menu():
                     label="邮箱",
                     width="180",
                     type="link",
-                    url_prefix="mailto:",
+                    props={
+                        "url_prefix":"mailto:"
+                    }
                 ),
                 ElTableColumn(prop="is_active", label="is_active", type="checkbox"),
             ],
@@ -786,7 +786,7 @@ def user_menu():
                     [
                         ElFormItem(
                             label="用户名",
-                            prop="username",
+                            prop="username__contains",
                             placeholder="请输入用户名",
                         ),
                         ElFormItem(

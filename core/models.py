@@ -159,8 +159,16 @@ class UserToken(Model):
     def get_fresh_token_by_user(user: User, request: HttpRequest):
         device_info = UserToken.get_device_info_from_request(request)
         token = UserToken.objects.filter(user=user).order_by("-created_at").first()
+
+        #  不同设备，重新生成token
         if not token or token.user_agent != device_info["user_agent"] or token.ip != device_info["ip"] or token.device != device_info["device"] or token.platform != device_info["platform"]:
             return UserToken.create_token(user, request=request)
+        
+        #  token已过期，重新生成
+        if not token.valid():
+            return UserToken.create_token(user, request=request)
+        
+        #  token有效，不需要重新生成，并延长有效期，更新设备信息
         token.expire_at = timezone.now() + timedelta(days=1)
         for k, v in UserToken.get_device_info_from_request(request).items():
             setattr(token, k, v)

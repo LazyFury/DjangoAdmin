@@ -32,7 +32,7 @@ export default defineConfig({
         success: '#10B981',
         warning: '#F59E0B',
         info: '#3B82F6',
-        "light-header-bg": '#3744cc',
+        "light-header-bg": '#395cd7',
         "light-header-text": 'white',
     }
   },
