@@ -10,8 +10,8 @@
 
         <ElButton style="width: 64px; height: 64px;" @click="handleUpload">
             <div class="flex flex-col items-center jucstify-center">
-                <Icon icon="ant-design:upload-outlined" class="text-xl mb-1"></Icon>
-                <span class="text-xs">上传</span>
+                <Icon icon="ant-design:upload-outlined" class="text-2xl mb-1"></Icon>
+                <span class="text-8px">上传图片</span>
             </div>
         </ElButton>
 

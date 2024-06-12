@@ -19,8 +19,11 @@ from django.http import HttpResponse
 from django.urls import path,re_path
 from api import api
 from api.admin import api as admin_api
+from app import settings
 
 def handle_temp_upload_file_preview(request,path):
+    if not settings.DEBUG:
+        return HttpResponse("Not Found", status=404)
     file_path = "temp/" + path
     white_list = ["jpg", "jpeg", "png", "gif"]
 

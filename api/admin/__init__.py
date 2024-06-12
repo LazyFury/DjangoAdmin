@@ -102,7 +102,7 @@ Api(
     ProductCategory,
     get_list_params=lambda request: {**request.GET.dict(), "parent_id__isnull": True},
     get_update_params=lambda request: dict_utils.filter_with_allow_keys(
-        {**json.loads(request.body)}, ["parent_id", "id", "name"]
+        {**json.loads(request.body)}, ["parent_id", "id", "name","icon"]
     ),
     get_export_params=lambda request: {**request.GET.dict()},
 ).register(api, "/product-category")

@@ -7,6 +7,7 @@ from common.wrapped import jsonGetter
 # Create your models here.
 class ProductCategory(Model):
     name = models.CharField(max_length=255)
+    icon = models.ImageField(upload_to="category", blank=True, null=True)
     description = models.TextField(blank=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE,null=True, blank=True)
 

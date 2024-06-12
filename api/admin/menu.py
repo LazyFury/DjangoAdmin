@@ -419,6 +419,8 @@ def product_category_menu():
         table=ElTable(
             title="商品分类",
             columns=[
+                # icon 
+                ElTableColumn(prop="icon", label="logo", width="180",type="image"),
                 ElTableColumn(prop="name", label="分类", width="180"),
                 # description
                 ElTableColumn(prop="description", label="描述", width="180"),
@@ -447,6 +449,19 @@ def product_category_menu():
             "create": ElForm(
                 title="创建分类",
                 rows=[
+                    [
+                         # icon
+                        ElFormItem(
+                            label="logo",
+                            prop="icon",
+                            type="upload-image",
+                            placeholder="请输入",
+                            props={
+                                "multiple": False
+                            }
+                        ),
+
+                    ],
                     [
                         ElFormItem(
                             label="分类",
