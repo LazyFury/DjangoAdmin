@@ -35,10 +35,11 @@ class ArticleCategory(Model):
     
     @staticmethod
     def get_all_children(category):
-        children = ArticleCategory.objects.filter(parent=category)
-        if not children:
-            return []
-        return children + ArticleCategory.get_all_children(children)
+        children = []
+        for child in category.children(category).all():
+            children.append(child)
+            children.extend(ArticleCategory.get_all_children(child))
+        return children
     
     @jsonGetter(name='parent_name')
     def parent_name(self):
@@ -58,9 +59,18 @@ class ArticleCategory(Model):
     def has_children(self):
         return len(self.all_children()) > 0
     
+    def all_children_ids(self):
+        return [child.id for child in self.all_children()]
+
+    def article_count(self):
+        all_children_ids = [child.id for child in self.all_children()] + [self.id]
+        return Article.objects.filter(category_id__in=all_children_ids).count()
+    
     def delete(self, *args, **kwargs):
         if self.has_children():
-            raise ApiError('This category has children, please delete them first')
+            raise ApiError('分类下有子分类，无法删除')
+        if self.article_count() > 0:
+            raise ApiError('分类下有文章，无法删除')        
         super().delete(*args, **kwargs)
 
 
@@ -78,6 +88,8 @@ class ArticleCategory(Model):
                 if valid_parent == self:
                     raise ApiError('顶级分类不能是自己的子分类')
                 valid_parent = valid_parent.parent
+        else:
+            self.parent = None
         super().save(*args, **kwargs)
 
 
@@ -87,11 +99,11 @@ class Article(Model):
     description = models.TextField(blank=True)
     content = models.TextField()
     is_published = models.BooleanField(default=False)
-    author = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='articles')
+    author = models.ForeignKey('core.User', on_delete=models.SET_NULL, related_name='articles', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tag_ids = models.CharField(max_length=255, blank=True)
-    category = models.ForeignKey(ArticleCategory, on_delete=models.CASCADE, related_name='articles')
+    category = models.ForeignKey(ArticleCategory, on_delete=models.SET_NULL, related_name='articles', null=True)
 
     xlsx_config:XlsxExportConfig = XlsxExportConfig(
         fields=[
@@ -110,23 +122,23 @@ class Article(Model):
     
     @jsonGetter(name='author_name')
     def author_name(self):
-        return self.author.username
+        return self.author.username if self.author else None
     
     @jsonGetter(name='author_id')
     def author__id(self):
-        return f"{self.author.id}"
+        return f"{self.author.id}" if self.author else None
     
     @jsonGetter(name='author_avatar')
     def author_avatar(self):
-        return self.author.avatar.url if self.author.avatar else None
+        return self.author.avatar.url if  self.author and self.author.avatar else None
     
     @jsonGetter(name='category_name')
     def category_name(self):
-        return self.category.name
+        return self.category.name if self.category else None
     
     @jsonGetter(name='category_id')
     def category__id(self):
-        return f"{self.category.id}"
+        return f"{self.category.id}" if self.category else None
     
     @jsonGetter(name='tag_ids')
     def get_tag_ids(self):

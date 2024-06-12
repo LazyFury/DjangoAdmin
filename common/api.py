@@ -226,7 +226,8 @@ class Api:
         query = self.model.objects.filter(
             **self.extra_search_condition(request)
         ).filter(pk__in=ids)
-        query.delete()
+        for obj in query:
+            obj.delete()
         return ApiJsonResponse.success("Delete Success")
     
     def export(self,request:HttpRequest):
