@@ -20,10 +20,13 @@
     </div>
 
     <!-- cascader  -->
-    <ElCascader @change="handleUpdate" v-model="value" v-if="field.type == 'cascader'" :options="options"
-        :props="field.props" :placeholder="field.placeholder" v-bind="field.props"></ElCascader>
-
-
+    <div v-if="field.type == 'cascader'">
+        <ElCascader @change="handleUpdate" v-model="value" :options="options" :props="field.props"
+            :placeholder="field.placeholder" v-bind="field.props"></ElCascader>
+        <ElButton @click="getOptions" type="text" link>
+            <Icon icon="el:refresh" class=""></Icon>
+        </ElButton>
+    </div>
     <!-- switch -->
     <ElSwitch @change="handleUpdate" v-model="value" v-if="field.type == 'switch'" :active-text="field.checkedChildren">
     </ElSwitch>
@@ -50,9 +53,7 @@
 
     <!-- input  -->
     <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'"
-        v-if="!field.type || field.type == 'input'" :placeholder="field.placeholder"
-        v-bind="field.props"
-        >
+        v-if="!field.type || field.type == 'input'" :placeholder="field.placeholder" v-bind="field.props">
         <!-- suffix  -->
         <template v-if="field.suffix" #suffix>
             <div>
@@ -68,8 +69,8 @@
     </ElInput>
 
     <!-- quill editor  -->
-    <div v-if="field.type == 'quill'" v-bind="field.props" >
-        <QuillEditor v-model="value" @change="handleUpdate" ></QuillEditor>
+    <div v-if="field.type == 'quill'" v-bind="field.props">
+        <QuillEditor v-model="value" @change="handleUpdate"></QuillEditor>
     </div>
 
 
@@ -83,7 +84,7 @@ import { request } from '@/api/request'
 import { ElCheckbox } from 'element-plus';
 import QuillEditor from '@/components/QuillEditor.vue'
 export default {
-    components: { ElCheckbox, QuillEditor},
+    components: { ElCheckbox, QuillEditor },
     props: {
         field: {
             type: Object,
@@ -121,7 +122,8 @@ export default {
             this.$emit('update:modelValue', this.progressValue(val))
         },
         progressValue(v) {
-            if (this.field.type == 'cascader' && !this.field?.props?.multiple) return v ? v[v.length - 1] : v
+            // cascader 单选，如果返回数组，取最后一个，要判断是否是数组，否则更新会递归
+            if (this.field.type == 'cascader' && !this.field?.props?.multiple && Array.isArray(v)) return v ? v[v.length - 1] : v
             return v
         },
         progressOption(v) {
@@ -165,11 +167,13 @@ export default {
             if (this.field.options) {
                 this.options = this.field.options
             } else
-                if (this.field.props?.remoteDataApi) request.get(this.field.props?.remoteDataApi).then(res => {
-                    let data = res.data?.data?.list || []
-                    let options = data.map(this.progressOption)
-                    this.options = options
-                })
+                if (this.field.props?.remoteDataApi) {
+                    request.get(this.field.props?.remoteDataApi, { params: { page: 1, size: 999 } }).then(res => {
+                        let data = res.data?.data?.list || []
+                        let options = data.map(this.progressOption)
+                        this.options = options
+                    })
+                }
         }
     },
     created() { },
