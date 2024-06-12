@@ -57,7 +57,7 @@ export default {
             this.flatFields.forEach(el => {
                 if (el.required) {
                     map[el.prop] = [
-                        { required: true, message: el.message || el.placeholder }
+                        { required: true, message: el.message || el.placeholder, trigger: 'blur' }
                     ]
                 }
             })

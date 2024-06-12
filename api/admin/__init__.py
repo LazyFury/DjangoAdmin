@@ -1,5 +1,10 @@
 from common.api import Api
-from common.middleware import auth_middleware, get_user_middleware, is_superuser_middleware, request_aspects
+from common.middleware import (
+    auth_middleware,
+    get_user_middleware,
+    is_superuser_middleware,
+    request_aspects,
+)
 from common.router import Router
 from common.tools.upload import upload_handler
 from common.utils import dict_utils
@@ -10,16 +15,18 @@ import json
 
 from modules.posts.models import Article, ArticleCategory, ArticleTag
 from modules.settings.models import Dict, DictGroup
+from modules.store.models import ProductAttr, ProductAttrGroup, ProductAttrValue, ProductBrand, ProductCategory, ProductService, ProductTag
 
 api = Router(prefix="/admin/api")
 api.use(request_aspects, sort=0)
 api.use(get_user_middleware, sort=3)
 api.use(auth_middleware, sort=2)
-api.use(is_superuser_middleware,sort=4)
+api.use(is_superuser_middleware, sort=4)
 
 
 def get_permission_content_type_str(permission: Permission):
     return f"{t(permission.content_type.app_label)}.{t(permission.content_type.model)}"
+
 
 api.post("/common/upload")(upload_handler)
 
@@ -88,6 +95,36 @@ Api(
 ).register(api, "/article-category")
 
 Api(ArticleTag).register(api, "/article-tag")
+
+
+# 商品管理
+Api(
+    ProductCategory,
+    get_list_params=lambda request: {**request.GET.dict(), "parent_id__isnull": True},
+    get_update_params=lambda request: dict_utils.filter_with_allow_keys(
+        {**json.loads(request.body)}, ["parent_id", "id", "name"]
+    ),
+    get_export_params=lambda request: {**request.GET.dict()},
+).register(api, "/product-category")
+Api(ProductBrand).register(api, "/product-brand")
+Api(ProductTag).register(api, "/product-tag")
+Api(ProductService).register(api, "/product-service")
+Api(ProductAttrGroup).register(api, "/product-attr-group")
+
+def get_product_attr_params(request):
+    return dict_utils.filter_with_allow_keys(
+        {**json.loads(request.body)}, ["id", "name","description","group_id"]
+    )
+Api(ProductAttr,
+    get_create_params=get_product_attr_params,
+    get_update_params=get_product_attr_params
+    ).register(api, "/product-attr")
+
+def get_product_attr_value_params(request):
+    return dict_utils.filter_with_allow_keys(
+        {**json.loads(request.body)}, ["attr_id", "id", "name","description"]
+    )
+Api(ProductAttrValue,get_create_params=get_product_attr_value_params,get_update_params=get_product_attr_value_params).register(api, "/product-attr-value")
 
 from .menu import *  # noqa: F401, E402, F403
 from .user import *  # noqa: F401, E402, F403

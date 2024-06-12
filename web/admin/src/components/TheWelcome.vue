@@ -5,6 +5,10 @@ import ToolingIcon from './icons/IconTooling.vue'
 import EcosystemIcon from './icons/IconEcosystem.vue'
 import CommunityIcon from './icons/IconCommunity.vue'
 import SupportIcon from './icons/IconSupport.vue'
+
+import { useProfileStore } from '@/pinia/profile'
+
+const profileStore = useProfileStore()
 </script>
 
 <template>
@@ -15,7 +19,7 @@ import SupportIcon from './icons/IconSupport.vue'
             <DocumentationIcon />
           </template>
           <template #heading>
-            {{$t('welcome.documentation',{user:'Jack.'})}}
+            {{$t('welcome.documentation',{user:profileStore.profile.username})}}
           </template>
           {{$t('welcome.documentationText')}}
         </WelcomeItem>

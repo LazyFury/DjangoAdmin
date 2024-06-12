@@ -80,3 +80,16 @@
         }
     }
 </script>
+
+
+<style lang="scss" scope>
+.ql-container{
+    min-height: 300px;
+}
+.ql-snow .ql-picker-label::before{
+    position: absolute;
+    left: 10px;
+    top: 1px;
+}
+
+</style>

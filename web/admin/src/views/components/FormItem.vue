@@ -78,13 +78,20 @@
     <div v-if="field.tips" class="text-xs text-gray mt-1">
         <div v-html="field.tips"></div>
     </div>
+
+
+    <!-- upload image  -->
+    <UploadImage v-if="field.type == 'upload-image'" v-model="value" v-bind="field.props"></UploadImage>
 </template>
 <script>
 import { request } from '@/api/request'
 import { ElCheckbox } from 'element-plus';
 import QuillEditor from '@/components/QuillEditor.vue'
+import UploadImage from '@/views/components/widget/UploadImage.vue'
+
+
 export default {
-    components: { ElCheckbox, QuillEditor },
+    components: { ElCheckbox, QuillEditor, UploadImage },
     props: {
         field: {
             type: Object,
@@ -98,7 +105,7 @@ export default {
     data() {
         return {
             options: [],
-            value: ""
+            value: "",
         };
     },
     watch: {
