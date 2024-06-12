@@ -40,6 +40,8 @@ class User(AbstractUser, Model):
         ]
     )
 
+    protected_fields = ["password", "groups", "user_permissions", "last_login", "is_superuser"]
+
     @jsonGetter(name="avatar_url")
     def avatar_url(self):
         return self.avatar.url if self.avatar else None

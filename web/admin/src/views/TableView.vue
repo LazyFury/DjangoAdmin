@@ -163,7 +163,7 @@
         <slot v-for="form in formsList" :name="form.prop">
             <ElDialog :title="form.title" :class="form.prop" v-model="isFormsActiveMapping[form.prop]"
                 class="!md:w-640px !w-full !lg:w-960px">
-                <Form :ref="form.prop" :title="form.title" :fields="form.rows" @submit="e => handleFormSubmit(e, form)">
+                <Form :ref="form.prop" :title="form.title" :fields="form.rows" @submitForm="e => handleFormSubmit(e, form)">
                 </Form>
             </ElDialog>
         </slot>

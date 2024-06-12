@@ -1236,7 +1236,34 @@ def user_menu():
             list="/user.list",
             delete="/user.delete",
             export="/user.export",
+            update="/user.update",
         ),
+        forms={
+            "create": ElForm(
+                title="创建用户",
+                rows=[
+                    [
+                        # avatar 
+                        ElFormItem(
+                            label="头像",
+                            prop="avatar",
+                            type="upload-image",
+                            placeholder="请选择头像",
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="用户名",
+                            prop="username",
+                            type="input",
+                            placeholder="请输入用户名",
+                            required=True,
+                            message="请输入用户名",
+                        ),
+                    ]
+                ],
+            ),
+        }
     )
 
 

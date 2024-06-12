@@ -190,6 +190,10 @@ class Api:
         if not self.config.enable_create:
             raise ApiForbiddenError("Create is not allowed")
         params = self.get_create_params(request)
+        protected_fields = self.get_protected_fields()
+        for key in protected_fields:
+            if key in params.copy():
+                params.pop(key)
         obj = self.model.objects.create(**params)
         return ApiJsonResponse.success(self.serizalize(obj))
 
@@ -197,6 +201,9 @@ class Api:
         if not self.config.enable_update or self.model._meta.db_table in settings.LOCKING_MODIFY_TABLES:
             raise ApiForbiddenError("Update is not allowed")
         params = self.get_update_params(request)
+        for key in self.get_protected_fields():
+            if key in params.copy():
+                params.pop(key)
         id = params.get("id")
         if not id:
             raise ApiNotFoundError("id is required")

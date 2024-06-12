@@ -37,6 +37,9 @@ Api(
         enable_delete=False,
     ),
     hidden=["password"],
+    get_update_params=lambda request: dict_utils.filter_with_allow_keys(
+        {**json.loads(request.body)}, ["username", "avatar","id"]
+    )
 ).register(api, "/user")
 Api(Group).register(api, "/user-group")
 Api(UserToken).register(api, "/user-log")

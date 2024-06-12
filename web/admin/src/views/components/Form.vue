@@ -24,7 +24,7 @@
         </ElForm>
 
         <div class="flex flex-row items-center justify-end">
-            <ElButton @click="handleSubmit" type="primary" class="w-24">保存</ElButton>
+            <ElButton @click="handleSubmit()" type="primary" class="w-24">保存</ElButton>
         </div>
     </div>
 </template>
@@ -93,7 +93,7 @@ export default {
         handleSubmit() {
             this.$refs.formRef.validate((valid) => {
                 if (valid) {
-                    this.$emit('submit', this.form)
+                    this.$emit('submitForm', this.form)
                 }
             })
         },
