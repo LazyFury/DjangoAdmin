@@ -44,11 +44,11 @@ const logout = () => {
 <template>
   <div class="min-h-screen">
     <el-container class="min-h-screen bg-gary-100">
-        <div class="light:text-light-header-text light:bg-light-header-bg dark:bg-dark dark:text-white h-60px fixed w-full px-4 box-border border-solid border-0 border-b-1px border-gray-300" style="left: 0;top:0;z-index: 99;">
-            <ElRow :align="'middle'" class="py-2 h-full">
+        <div class="light:text-light-header-text light:bg-light-header-bg dark:bg-dark dark:text-white fixed w-full px-4 box-border border-solid border-0 border-b-1px border-gray-300" style="left: 0;top:0;z-index: 99;">
+            <div class="flex flex-row items-center py-2">
                 <div class="flex-1">
                     <UIButton>
-                        <span class="text-xl font-bold">{{$t('AdminTitle')}}</span>
+                        <span class="text-xl font-bold !mt-0">{{$t('AdminTitle')}}</span>
                     </UIButton>
                 </div>
                 <div class="flex flex-row items-center justify-center gap-4">
@@ -68,21 +68,20 @@ const logout = () => {
                         <Icon icon="ant-design:login-outlined"></Icon>
                         <span>{{profileStore.profile.username}}</span>
                     </UIButton>
-                    <UIButton>
-                        <ElAvatar :src="$img(profileStore.profile.avatar)" />
+                    <UIButton style="width: 32px;height: 32px;">
+                        <ElAvatar style="width: 32px;height: 32px;" :src="$img(profileStore.profile.avatar)" />
                     </UIButton>
                 </div>
-            </ElRow>
+            </div>
         </div>
-        <div style="height: 60px;" class="light:bg-gray-100"></div>
         <div class="flex flex-row flex-1 bg-gray-100">
-            <div class="w-200px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-60px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
+            <div class="w-200px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
                 <Menu :menus="menus" />
                 <div class="h-100px"></div>
             </div>
             <div class="w-200px"></div>
             <div class="flex-1 mt-60px dark:bg-dark-700">
-                <main class="p-4">
+                <main class="px-4">
                     <RouterView :key="$route.meta.key"></RouterView>
                 </main>
             </div>

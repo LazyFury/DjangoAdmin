@@ -1239,7 +1239,7 @@ def user_menu():
             update="/user.update",
         ),
         forms={
-            "create": ElForm(
+            "update": ElForm(
                 title="创建用户",
                 rows=[
                     [

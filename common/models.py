@@ -8,7 +8,7 @@ class Model(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
 
     hidden_fields = []
-    protected_fields = ["id", "created_at", "updated_at"]
+    protected_fields = ["created_at", "updated_at"]
     xlsx_config:XlsxExportConfig = XlsxExportConfig([])
 
     class Meta:
