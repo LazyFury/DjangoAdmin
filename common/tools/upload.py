@@ -48,6 +48,7 @@ def upload_file(file:UploadedFile, path="temp/upload", name=None):
     real_path = os.path.join(settings.BASE_DIR, path)
     file_suffix = name.split(".")[-1]
     time_str = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    # 文件名 md5 不可用做文件的唯一表示，避免文件名重复 / 读文件进行 md5 好像没太大必要暂时不做
     name = md5(name.encode("utf-8")).hexdigest() + "_" + time_str + "." + file_suffix
     
     if not check_file_type(file):
