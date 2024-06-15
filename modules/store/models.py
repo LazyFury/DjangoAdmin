@@ -16,6 +16,7 @@ class ProductCategory(Model):
             XlsxExportField(prop="id",label="ID"),
             XlsxExportField(prop="name",label="名称"),
             XlsxExportField(prop="description",label="描述"),
+            XlsxExportField(prop="icon",label="图片",type="image"),
         ]
     )
     def __str__(self):
@@ -55,6 +56,15 @@ class ProductBrand(Model):
     icon = models.TextField(blank=True)
     enable = models.BooleanField(default=True)
     link = models.TextField(blank=True)
+
+    xlsx_config = XlsxExportConfig(
+        fields=[
+            XlsxExportField(prop="id",label="ID"),
+            XlsxExportField(prop="name",label="名称"),
+            XlsxExportField(prop="description",label="描述"),
+            XlsxExportField(prop="icon",label="图片",type="image"),
+        ]
+    )
 
     def __str__(self):
         return self.name

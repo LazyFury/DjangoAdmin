@@ -2,6 +2,8 @@
 
 import datetime
 
+from app import settings
+
 
 class ExportConfig(object):
     def __init__(self,**kwargs) -> None:
@@ -32,6 +34,15 @@ class XlsxExportField(object):
                 self.formater = self.BOOL_FORMAT_STYLE
             TrueValue,FalseValue = self.formater.split(",")
             return TrueValue if value else FalseValue
+        if self.type == 'image':
+            work_path = settings.BASE_DIR
+            if value.startswith("http"):
+                return value
+            if value.startswith("/"):
+                return f"{work_path}{value}"
+            else:
+                return f"{work_path}/{value}"
+            
         return value or "/"
 
 

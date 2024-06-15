@@ -24,6 +24,11 @@ from app import settings
 def handle_temp_upload_file_preview(request,path):
     if not settings.DEBUG:
         return HttpResponse("Not Found", status=404)
+    
+    # check ../ in path 
+    if ".." in path:
+        return HttpResponse("Not Found", status=404)
+
     file_path = "temp/" + path
     white_list = ["jpg", "jpeg", "png", "gif"]
 

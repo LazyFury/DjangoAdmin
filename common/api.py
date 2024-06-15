@@ -12,6 +12,10 @@ import pandas
 from openpyxl.styles import Font, Border, Side
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image
+from openpyxl.utils import get_column_letter, column_index_from_string
+
+
 
 from app import settings
 from common import serizalize
@@ -292,7 +296,7 @@ class Api:
             sum_row = [None for _ in range(len(dataframe.columns))]
             sum_row[0] = "合计" # type: ignore
             sub_dataframe = pandas.DataFrame([sum_row],columns=dataframe.columns)
-            for field in self.get_xlsx_fields()[1:]:
+            for field in self.get_xlsx_fields():
                 if field.sum:
                     sub_dataframe[field.prop] = dataframe[field.prop].sum()
             dataframe = pandas.concat([dataframe,sub_dataframe])
@@ -302,7 +306,7 @@ class Api:
             ws.append(r)
         
                        
-        # set column with from a-z 
+        # 自动宽度
         for column_cells in ws.columns:
             length = max(len(str(cell.value)) for cell in column_cells)
             length = min(50,length)
@@ -322,7 +326,27 @@ class Api:
                 if field.prop == cell.value:
                     cell.value = field.label
                     break
-
+        
+        # excel 里的特殊类型，不能通过 format string 解决
+        if len(self.get_xlsx_fields()) > 0:
+            # loop ws data 1~n-1,check type and format
+            for row in ws.iter_rows(min_row=1):
+                for cell in row:
+                    coordinate = cell.coordinate
+                    colIndex = coordinate[0]
+                    colIndexInt = column_index_from_string(colIndex)
+                    # print("format",coordinate,colIndex,colIndexInt)
+                    field = self.get_xlsx_fields()[colIndexInt-1]
+                    if field.type == 'image':
+                        if cell.value:
+                            # Image 不支持设置 size、就算修改行高也要再读一遍文件
+                            pass
+                            # print(cell.value,coordinate,field)
+                            # if os.path.exists(str(cell.value)) and os.path.isfile(str(cell.value)):
+                            #     img = Image(cell.value)
+                            #     cell.value = ""
+                            #     ws.add_image(img,coordinate)
+        
         wb.save(file)       
         
 
