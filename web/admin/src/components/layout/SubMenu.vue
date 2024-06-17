@@ -7,7 +7,9 @@
             </template>
             <div v-for="(childItem) in item.children">
                 <MenuItem v-if="!childItem.children || childItem.children.length<=0" :item="childItem" @jump="e=>$emit('jump',e)"></MenuItem>
-                <sub-menu v-if="childItem.children && childItem.children.length>0" :item="childItem" ></sub-menu>
+                <div v-if="childItem.children && childItem.children.length>0" >
+                    <sub-menu :item="childItem" ></sub-menu>
+                </div>
             </div>
         </el-sub-menu>
     </div>

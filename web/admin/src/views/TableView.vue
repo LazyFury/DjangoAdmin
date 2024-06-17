@@ -80,7 +80,7 @@
                 </ElButton>
             </div>
             <div class="overflow-x-auto" :style="{
-                width:`calc(100vw - ${subMenuStore.hasSubMenu ? 372 : 180}px)`
+                width:`calc(100vw - ${subMenuStore.hasSubMenu ? 412 : 180}px)`
             }">
                 <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
                     :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
@@ -165,7 +165,7 @@
         <slot v-for="form in formsList" :name="form.prop">
             <ElDialog :title="form.title" :class="form.prop" v-model="isFormsActiveMapping[form.prop]"
                 class="!md:w-640px !w-full !lg:w-960px">
-                <Form :ref="form.prop" :title="form.title" :fields="form.rows" @submitForm="e => handleFormSubmit(e, form)">
+                <Form :key="$route.meta.key + '-form-' + form.prop" :ref="form.prop" :title="form.title" :fields="form.rows" @submitForm="e => handleFormSubmit(e, form)">
                 </Form>
             </ElDialog>
         </slot>

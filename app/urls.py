@@ -39,7 +39,7 @@ def handle_temp_upload_file_preview(request,path):
     return HttpResponse("Not Found", status=404)
 
 urlpatterns = [
-    path("admin-plane/", admin.site.urls),
+    # path("admin-plane/", admin.site.urls),
     re_path(r"^api/", api.handle),
     re_path(r"^admin/api/", admin_api.handle),
     re_path(r"^temp/(?P<path>.*)$", handle_temp_upload_file_preview),

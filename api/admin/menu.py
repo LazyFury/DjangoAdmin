@@ -46,9 +46,10 @@ def menus(request: HttpRequest):
                 component="SubMenuView",
                 children=[
                     product_category_menu(),
-                    product_brand_menu(),
-                    product_tag_menu(),
-                    product_service_menu(),
+                    ElMenuGap("商品规格相关设置"),
+                    product_sku_menu(),
+                    product_sku_value_menu(),
+                    ElMenuGap("其他设置"),
                     ElMenuItem(
                         title="商品属性",
                         key="product-attr-menu",
@@ -60,9 +61,9 @@ def menus(request: HttpRequest):
                             product_attr_value_menu(),
                         ],
                     ),
-                    ElMenuGap("商品规格相关设置"),
-                    product_sku_menu(),
-                    product_sku_value_menu(),
+                    product_brand_menu(),
+                    product_tag_menu(),
+                    product_service_menu(),
                 ],
             ),
             ElMenuItem(
@@ -543,6 +544,7 @@ def product_category_menu():
         component="TableView",
         table=ElTable(
             title="商品分类",
+            description="商品分类列表",
             columns=[
                 # icon
                 ElTableColumn(prop="icon", label="logo", width="180", type="image"),
