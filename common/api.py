@@ -12,8 +12,7 @@ import pandas
 from openpyxl.styles import Font, Border, Side
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.drawing.image import Image
-from openpyxl.utils import get_column_letter, column_index_from_string
+from openpyxl.utils import column_index_from_string
 
 
 

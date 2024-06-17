@@ -50,7 +50,7 @@ app.use(function (vm) {
         if (/^http/.test(url)) {
             return url
         }
-        const target =  config.url.IMG_URL + url
+        const target = config.url.IMG_URL + url
         return target
     }
 
@@ -65,11 +65,11 @@ app.use(function (vm) {
         const serverData = {
             "zh-cn": {
                 "AdminTitle": "Element Vite Admin ｜ EVA",
-                "首页":"控制台",
-                "welcome.documentation":"欢迎 {user} 使用文档",
+                "首页": "控制台",
+                "welcome.documentation": "欢迎 {user} 使用文档",
             },
         }
-        translateStore.setMessages("zh-cn",{
+        translateStore.setMessages("zh-cn", {
             ...zhCN,
             ...(serverData["zh-cn"] || {})
         })
@@ -88,10 +88,10 @@ const getComponents = () => {
     return components
 }
 
-const components = getComponents()  
-console.log("components",components)
+const components = getComponents()
+console.log("components", components)
 
-const registerRoute = (menu) => {
+const registerRoute = (menu, parent = "") => {
     if (menu.component) {
         // register router
         const component = components[`./views/${menu.component}.vue`]
@@ -99,20 +99,24 @@ const registerRoute = (menu) => {
             path: menu.path,
             name: menu.key,
             component: component,
-            meta:{
-                title:menu.title,
-                key:menu.key,
-                api:menu.api || "",
+            meta: {
+                title: menu.title,
+                key: menu.key,
+                api: menu.api || "",
                 ...(menu || {})
-            }
+            },
+            redirect: menu.children && menu.children.length > 0 ? {
+                name:menu.children[0].key
+            } : ""
         }
-        if(!menu.parent){
-            menu.parent = 'layout' //default layout
+
+        if (!menu.parent) {
+            menu.parent = parent || 'layout' //default layout
         }
-        if(menu.parent){
+        if (menu.parent) {
             const parentRoute = router.getRoutes().find(el => el.name === menu.parent)
-            if(parentRoute){
-                if(!parentRoute.children){
+            if (parentRoute) {
+                if (!parentRoute.children) {
                     parentRoute.children = []
                 }
                 parentRoute.children.push(route)
@@ -122,22 +126,22 @@ const registerRoute = (menu) => {
     }
     if (menu.children) {
         for (let i = 0; i < menu.children.length; i++) {
-            registerRoute(menu.children[i])
+            registerRoute(menu.children[i], menu.key)
         }
     }
 }
 
-request.get('/menus',{
-    noMsgAlert:true
+request.get('/menus', {
+    noMsgAlert: true
 }).then(async res => {
     let menus = res.data.data || []
     for (let i = 0; i < menus.length; i++) {
         let el = menus[i]
-        registerRoute(el)
+        registerRoute(el, "layout")
     }
-    
-}).finally(()=>{
-    console.log("router",router.getRoutes())
+
+}).finally(() => {
+    console.log("router", router.getRoutes())
     app.use(router)
     app.mount('#app')
 })

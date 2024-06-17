@@ -88,6 +88,7 @@ class ElTable(ElWidget):
     def __init__(
         self,
         title: str,
+        description:str="",
         columns: list[ElTableColumn] = [],
         search: ElForm = ElForm("Search"),
         filters: ElForm = ElForm("Filters"),
@@ -114,6 +115,7 @@ class ElTable(ElWidget):
     ):
         self.title = title
         self.columns = columns
+        self.description = description
         self.search = search
         self.filters = filters
         self.actions = actions

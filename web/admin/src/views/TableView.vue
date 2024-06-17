@@ -4,8 +4,8 @@
             <!-- {{ $route.meta }} -->
             <div class="flex flex-row">
                 <div>
-                    <h1 class="mb-0 mt-2">{{ meta.title }}</h1>
-                    <p class="text-gray">{{ meta.description }}</p>
+                    <h1 class="mb-0 mt-2">{{ meta.table?.title || meta.title }}</h1>
+                    <p class="text-gray">{{ meta.description || meta.table.description }}</p>
                 </div>
                 <div class="flex-grow">
                     <div class="flex flex-row-reverse">
@@ -79,7 +79,9 @@
                     <span>导出</span>
                 </ElButton>
             </div>
-            <div class=" overflow-x-auto" style="width:calc(100vw - 300px)">
+            <div class=" overflow-x-auto" :style="{
+                width:`calc(100vw - ${subMenuStore.hasSubMenu ? 400 : 180}px)`
+            }">
                 <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
                     :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
                     @sort-change="handleSortChange">
@@ -175,7 +177,7 @@ import { request } from '@/api/request';
 import Form from '@/views/components/Form.vue'
 import FormItem from './components/FormItem.vue';
 import config from '@/config';
-
+import { useSubMenuStore } from '../pinia/subMenu';
 export default {
     components: { ElPagination, Form, FormItem },
     props: {},
@@ -195,6 +197,12 @@ export default {
             isFormsActiveMapping: {},
             fromActionsMapping: {}
         };
+    },
+    setup(){
+        const subMenuStore = useSubMenuStore()
+        return {
+            subMenuStore
+        }
     },
     watch: {},
     computed: {

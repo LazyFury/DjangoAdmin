@@ -6,15 +6,17 @@ import { onMounted, ref, watch, watchEffect } from 'vue';
 import useTranslateStore from '../pinia/translate';
 import { request } from '../api/request';
 import useProfileStore from '../pinia/profile';
+import {useSubMenuStore} from '../pinia/subMenu';
 const menus = ref([])
 const router = useRouter()
 const translateStore = useTranslateStore()
 const profileStore = useProfileStore()
+const subMenuStore = useSubMenuStore()
 onMounted(()=>{
     request.get('/menus').then(res=>{
-        menus.value = (res.data.data || []).filter(el=>el.hidden_on_menu !== true).map(el=>{
+        menus.value = (res.data.data || []).filter(el=>el.hidden !== true).map(el=>{
             if(el.children){
-                el.children = el.children.filter(el=>el.hidden_on_menu !== true)
+                el.children = el.children.filter(el=>el.hidden !== true)
             }
             return el
         })
@@ -75,14 +77,14 @@ const logout = () => {
             </div>
         </div>
         <div class="flex flex-row flex-1 bg-gray-100">
-            <div class="w-200px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
+            <div class="w-150px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
                 <Menu :menus="menus" />
                 <div class="h-100px"></div>
             </div>
-            <div class="w-200px"></div>
+            <div class="w-150px"></div>
             <div class="flex-1 mt-60px dark:bg-dark-700">
-                <main class="px-4">
-                    <RouterView :key="$route.meta.key"></RouterView>
+                <main class="px-2">
+                    <RouterView ></RouterView>
                 </main>
             </div>
         </div>

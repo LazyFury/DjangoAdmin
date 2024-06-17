@@ -145,6 +145,10 @@ class ProductSkuValue(Model):
     def __str__(self):
         return self.name
     
+    @jsonGetter(name="sku_name")
+    def sku_name(self):
+        return f"{self.sku.name}-{self.sku.description}"
+    
 class Product(Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)

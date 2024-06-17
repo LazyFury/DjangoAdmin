@@ -4,7 +4,7 @@ from django.http import HttpRequest
 from app import settings
 from libs.elementui.base import ElApis
 from libs.elementui.form import ElForm, ElFormItem
-from libs.elementui.menu import ElMenu, ElMenuItem
+from libs.elementui.menu import ElMenu, ElMenuGap, ElMenuItem
 from libs.elementui.table import (
     DefActions,
     ElTable,
@@ -31,7 +31,7 @@ def menus(request: HttpRequest):
                 key="cms",
                 icon="ant-design:file-text-outlined",
                 path="/cms",
-                component="cms",
+                component="SubMenuView",
                 children=[
                     cms_article_menu(),
                     cms_article_category_menu(),
@@ -43,15 +43,26 @@ def menus(request: HttpRequest):
                 key="products",
                 icon="ant-design:appstore-outlined",
                 path="/products",
-                component="products",
+                component="SubMenuView",
                 children=[
                     product_category_menu(),
                     product_brand_menu(),
                     product_tag_menu(),
                     product_service_menu(),
-                    product_attr_group_menu(),
-                    product_attr_menu(),
-                    product_attr_value_menu(),
+                    ElMenuItem(
+                        title="商品属性",
+                        key="product-attr-menu",
+                        path="/products/product-attr-menu",
+                        component="-",
+                        children=[
+                            product_attr_group_menu(),
+                            product_attr_menu(),
+                            product_attr_value_menu(),
+                        ],
+                    ),
+                    ElMenuGap("商品规格相关设置"),
+                    product_sku_menu(),
+                    product_sku_value_menu(),
                 ],
             ),
             ElMenuItem(
@@ -59,7 +70,7 @@ def menus(request: HttpRequest):
                 key="user",
                 icon="ant-design:user-outline",
                 path="/user",
-                component="user",
+                component="SubMenuView",
                 children=[
                     user_menu(),
                     user_group_menu(),
@@ -69,10 +80,10 @@ def menus(request: HttpRequest):
             ),
             ElMenuItem(
                 title="系统设置",
-                key="dict",
+                key="set",
                 icon="ant-design:database-outlined",
-                path="/dict",
-                component="TableView",
+                path="/set",
+                component="SubMenuView",
                 children=[
                     set_dict_menu(),
                     set_dict_group_menu(),
@@ -80,11 +91,123 @@ def menus(request: HttpRequest):
             ),
         ]
     )
+
+
+def product_sku_menu():
+    return ElMenuItem(
+        title="商品规格",
+        key="product-sku",
+        path="/products/product-sku",
+        component="TableView",
+        table=ElTable(
+            title="商品规格",
+            description="商品规格是购买的时候需要选择的",
+            columns=[
+                ElTableColumn(prop="name", label="规格", width="180"),
+                # description
+                ElTableColumn(prop="description", label="描述", width="180"),
+            ],
+        ),
+        api=ElApis(
+            list="/product-sku.list",
+            delete="/product-sku.delete",
+            create="/product-sku.create",
+            update="/product-sku.update",
+            export="/product-sku.export",
+        ),
+        forms={
+            "create": ElForm(
+                title="创建规格",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="规格",
+                            prop="name",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="描述",
+                            prop="description",
+                            type="textarea",
+                            placeholder="请输入",
+                            required=False,
+                            width="80%",
+                        ),
+                    ],
+                ],
+            ),
+        },
+    )
+
+
+def product_sku_value_menu():
+    return ElMenuItem(
+        title="商品规格值",
+        key="product-sku-value",
+        path="/products/product-sku-value",
+        component="TableView",
+        table=ElTable(
+            title="商品规格值",
+            columns=[
+                ElTableColumn(prop="name", label="规格值", width="180"),
+                # description
+                ElTableColumn(prop="description", label="描述", width="180"),
+                # sku_name
+                ElTableColumn(prop="sku_name", label="规格", width="180"),
+            ],
+        ),
+        api=ElApis(
+            list="/product-sku-value.list",
+            delete="/product-sku-value.delete",
+            create="/product-sku-value.create",
+            update="/product-sku-value.update",
+            export="/product-sku-value.export",
+        ),
+        forms={
+            "create": ElForm(
+                title="创建规格值",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="规格值",
+                            prop="name",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="描述",
+                            prop="description",
+                            type="textarea",
+                            placeholder="请输入",
+                            required=False,
+                            width="80%",
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="规格",
+                            prop="sku_id",
+                            type="select",
+                            placeholder="请输入",
+                            props={"remoteDataApi": "/product-sku.list"},
+                        ),
+                    ],
+                ],
+            ),
+        },
+    )
+
+
 def product_attr_value_menu():
     return ElMenuItem(
         title="商品属性值",
         key="product-attr-value",
-        path="/goods/product-attr-value",
+        path="/products/product-attr-value",
         component="TableView",
         table=ElTable(
             title="商品属性值",
@@ -122,7 +245,7 @@ def product_attr_value_menu():
                             type="textarea",
                             placeholder="请输入",
                             required=False,
-                            width="80%"
+                            width="80%",
                         ),
                     ],
                     [
@@ -134,22 +257,24 @@ def product_attr_value_menu():
                             width="320px",
                             props={
                                 "remoteDataApi": "/product-attr.list",
-                            }
+                            },
                         ),
-                    ]
+                    ],
                 ],
             ),
         },
     )
 
+
 def product_attr_menu():
     return ElMenuItem(
         title="商品属性",
         key="product-attr",
-        path="/goods/product-attr",
+        path="/products/product-attr",
         component="TableView",
         table=ElTable(
             title="商品属性",
+            description="商品属性仅展示/和提供搜索时筛选",
             columns=[
                 ElTableColumn(prop="name", label="属性", width="180"),
                 # description
@@ -184,7 +309,7 @@ def product_attr_menu():
                             type="textarea",
                             placeholder="请输入",
                             required=False,
-                            width="80%"
+                            width="80%",
                         ),
                     ],
                     [
@@ -196,19 +321,20 @@ def product_attr_menu():
                             width="320px",
                             props={
                                 "remoteDataApi": "/product-attr-group.list",
-                            }
+                            },
                         ),
-                    ]
+                    ],
                 ],
             ),
         },
     )
 
+
 def product_attr_group_menu():
     return ElMenuItem(
         title="商品属性组",
         key="product-attr-group",
-        path="/goods/product-attr-group",
+        path="/products/product-attr-group",
         component="TableView",
         table=ElTable(
             title="商品属性组",
@@ -244,7 +370,7 @@ def product_attr_group_menu():
                             type="textarea",
                             placeholder="请输入",
                             required=False,
-                            width="80%"
+                            width="80%",
                         ),
                     ],
                 ],
@@ -257,7 +383,7 @@ def product_service_menu():
     return ElMenuItem(
         title="商品服务",
         key="product-service",
-        path="/goods/product-service",
+        path="/products/product-service",
         component="TableView",
         table=ElTable(
             title="商品服务",
@@ -292,7 +418,7 @@ def product_service_menu():
                             prop="description",
                             type="textarea",
                             placeholder="请输入",
-                            width="80%"
+                            width="80%",
                         ),
                     ],
                 ],
@@ -305,7 +431,7 @@ def product_tag_menu():
     return ElMenuItem(
         title="商品标签",
         key="product-tag",
-        path="/goods/product-tag",
+        path="/products/product-tag",
         component="TableView",
         table=ElTable(
             title="商品标签",
@@ -350,13 +476,13 @@ def product_brand_menu():
     return ElMenuItem(
         title="商品品牌",
         key="product-brand",
-        path="/goods/product-brand",
+        path="/products/product-brand",
         component="TableView",
         table=ElTable(
             title="商品品牌",
             columns=[
-                # icon 
-                ElTableColumn(prop="icon", label="logo", width="180",type="image"),
+                # icon
+                ElTableColumn(prop="icon", label="logo", width="180", type="image"),
                 ElTableColumn(prop="name", label="品牌", width="180"),
                 # description
                 ElTableColumn(prop="description", label="描述", width="180"),
@@ -374,19 +500,16 @@ def product_brand_menu():
                 title="创建品牌",
                 rows=[
                     [
-                         # icon 
+                        # icon
                         ElFormItem(
                             label="logo",
                             prop="icon",
                             type="upload-image",
                             placeholder="请输入",
-                            props={
-                                "multiple": False
-                            }
+                            props={"multiple": False},
                         ),
                     ],
                     [
-                       
                         ElFormItem(
                             label="品牌",
                             prop="name",
@@ -395,15 +518,14 @@ def product_brand_menu():
                         ),
                     ],
                     [
-
                         ElFormItem(
                             label="描述",
                             prop="description",
                             type="textarea",
                             placeholder="请输入",
-                            width="80%"
+                            width="80%",
                         ),
-                    ]
+                    ],
                 ],
             ),
         },
@@ -414,13 +536,13 @@ def product_category_menu():
     return ElMenuItem(
         title="商品分类",
         key="product-category",
-        path="/goods/product-category",
+        path="/products/product-category",
         component="TableView",
         table=ElTable(
             title="商品分类",
             columns=[
-                # icon 
-                ElTableColumn(prop="icon", label="logo", width="180",type="image"),
+                # icon
+                ElTableColumn(prop="icon", label="logo", width="180", type="image"),
                 ElTableColumn(prop="name", label="分类", width="180"),
                 # description
                 ElTableColumn(prop="description", label="描述", width="180"),
@@ -450,17 +572,14 @@ def product_category_menu():
                 title="创建分类",
                 rows=[
                     [
-                         # icon
+                        # icon
                         ElFormItem(
                             label="logo",
                             prop="icon",
                             type="upload-image",
                             placeholder="请输入",
-                            props={
-                                "multiple": False
-                            }
+                            props={"multiple": False},
                         ),
-
                     ],
                     [
                         ElFormItem(
@@ -1038,7 +1157,7 @@ def permission_menu():
     return ElMenuItem(
         title="用户权限",
         key="permission",
-        path="/permission",
+        path="/user/permission",
         component="TableView",
         table=ElTable(
             title="权限",
@@ -1243,7 +1362,7 @@ def user_menu():
                 title="创建用户",
                 rows=[
                     [
-                        # avatar 
+                        # avatar
                         ElFormItem(
                             label="头像",
                             prop="avatar",
@@ -1260,10 +1379,10 @@ def user_menu():
                             required=True,
                             message="请输入用户名",
                         ),
-                    ]
+                    ],
                 ],
             ),
-        }
+        },
     )
 
 

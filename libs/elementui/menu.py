@@ -6,6 +6,11 @@ from libs.elementui.form import ElForm
 from libs.elementui.table import ElTable
 
 
+class ElMenuGap (ElWidget):
+    def __init__(self,title=""):
+        self.type = "gap"
+        self.title = title
+
 class ElMenuItem(ElWidget):
     def __init__(
         self,
@@ -14,7 +19,7 @@ class ElMenuItem(ElWidget):
         path: str,
         component: str,
         icon: str = "",
-        children: list[Self] = [],
+        children: list[Self|ElMenuGap] = [],
         table:ElTable = ElTable(""),
         api:ElApis = ElApis("","","",""),
         forms:dict[str,ElForm] = {
@@ -23,6 +28,7 @@ class ElMenuItem(ElWidget):
         },
         type=ElPage.TABLE,
     ):
+        self.type = "menu-item"
         self.title = title
         self.key = key
         self.icon = icon
@@ -40,5 +46,5 @@ class ElMenuItem(ElWidget):
 
 
 class ElMenu(list):
-    def __init__(self,children: list[ElMenuItem] = []):
+    def __init__(self,children: list[ElMenuItem|ElMenuGap] = []):
         super().__init__(children)
