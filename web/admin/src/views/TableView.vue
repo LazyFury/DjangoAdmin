@@ -79,8 +79,8 @@
                     <span>导出</span>
                 </ElButton>
             </div>
-            <div class=" overflow-x-auto" :style="{
-                width:`calc(100vw - ${subMenuStore.hasSubMenu ? 400 : 180}px)`
+            <div class="overflow-x-auto" :style="{
+                width:`calc(100vw - ${subMenuStore.hasSubMenu ? 372 : 180}px)`
             }">
                 <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
                     :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"

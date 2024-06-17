@@ -77,11 +77,11 @@ const logout = () => {
             </div>
         </div>
         <div class="flex flex-row flex-1 bg-gray-100">
-            <div class="w-150px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
+            <div class="w-124px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
                 <Menu :menus="menus" />
                 <div class="h-100px"></div>
             </div>
-            <div class="w-150px"></div>
+            <div class="w-124px"></div>
             <div class="flex-1 mt-60px dark:bg-dark-700">
                 <main class="px-2">
                     <RouterView ></RouterView>

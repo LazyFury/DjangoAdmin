@@ -7,9 +7,10 @@ from libs.elementui.table import ElTable
 
 
 class ElMenuGap (ElWidget):
-    def __init__(self,title=""):
+    def __init__(self,title="",icon=""):
         self.type = "gap"
         self.title = title
+        self.icon = icon or "ant-design:align-left-outlined"
 
 class ElMenuItem(ElWidget):
     def __init__(
@@ -31,7 +32,7 @@ class ElMenuItem(ElWidget):
         self.type = "menu-item"
         self.title = title
         self.key = key
-        self.icon = icon
+        self.icon = icon or "ant-design:file-text-outlined"
         self.path = path
         self.component = component
         self.children = children

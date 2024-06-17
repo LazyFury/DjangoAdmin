@@ -41,7 +41,7 @@ def menus(request: HttpRequest):
             ElMenuItem(
                 title="商品管理",
                 key="products",
-                icon="ant-design:appstore-outlined",
+                icon="ant-design:shopping-outlined",
                 path="/products",
                 component="SubMenuView",
                 children=[
@@ -81,7 +81,7 @@ def menus(request: HttpRequest):
             ElMenuItem(
                 title="系统设置",
                 key="set",
-                icon="ant-design:database-outlined",
+                icon="ant-design:setting-outlined",
                 path="/set",
                 component="SubMenuView",
                 children=[
@@ -432,6 +432,7 @@ def product_tag_menu():
         title="商品标签",
         key="product-tag",
         path="/products/product-tag",
+        icon="material-symbols:bookmarks-outline",
         component="TableView",
         table=ElTable(
             title="商品标签",
@@ -477,6 +478,7 @@ def product_brand_menu():
         title="商品品牌",
         key="product-brand",
         path="/products/product-brand",
+        icon="tabler:brand-booking",
         component="TableView",
         table=ElTable(
             title="商品品牌",
@@ -537,6 +539,7 @@ def product_category_menu():
         title="商品分类",
         key="product-category",
         path="/products/product-category",
+        icon="ant-design:appstore-outlined",
         component="TableView",
         table=ElTable(
             title="商品分类",
