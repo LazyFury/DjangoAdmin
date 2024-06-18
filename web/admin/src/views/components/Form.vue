@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- {{ form }} -->
-        <ElForm ref="formRef" :inline="false" :model="form" :rules="rules" :label-width="120" class="mt-0">
+        <ElForm ref="formRef" @submit.prevent.stop="()=>{}" :inline="false" :model="form" :rules="rules" :label-width="120" class="mt-0">
             <div class="mb-4 grid xl:grid-cols-2">
                 <div v-for="field in fields" v-if="!multiRowMode">
                     <span>not support yet!</span>

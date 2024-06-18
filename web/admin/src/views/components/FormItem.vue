@@ -134,7 +134,7 @@ export default {
             return v
         },
         progressOption(v) {
-            let label_name = this.field.props?.label || 'name'
+            let label_name = this.field.props?.label || 'label'
             let backend_label_names = ['name', 'title', 'label', 'username']
             let value_name = this.field.props?.value || 'id'
             let backend_value_names = ['id', 'value']
@@ -150,19 +150,24 @@ export default {
                 value = v[value_name]
             }
 
-            for (let i = 0; i < backend_label_names.length; i++) {
-                if (v[backend_label_names[i]]) {
-                    label = v[backend_label_names[i]]
-                    break
+            if (!label) {
+                for (let i = 0; i < backend_label_names.length; i++) {
+                    if (v[backend_label_names[i]]) {
+                        label = v[backend_label_names[i]]
+                        break
+                    }
                 }
             }
 
-            for (let i = 0; i < backend_value_names.length; i++) {
-                if (v[backend_value_names[i]]) {
-                    value = v[backend_value_names[i]]
-                    break
+            if (!value) {
+                for (let i = 0; i < backend_value_names.length; i++) {
+                    if (v[backend_value_names[i]]) {
+                        value = v[backend_value_names[i]]
+                        break
+                    }
                 }
             }
+
 
             return {
                 label,

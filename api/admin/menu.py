@@ -194,6 +194,7 @@ def product_sku_value_menu():
                             label="规格",
                             prop="sku_id",
                             type="select",
+                            width="320px",
                             placeholder="请输入",
                             props={"remoteDataApi": "/product-sku.list"},
                         ),

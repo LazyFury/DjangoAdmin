@@ -135,6 +135,10 @@ class ProductSku(Model):
 
     def __str__(self):
         return self.name
+    
+    @jsonGetter(name="label")
+    def label(self):
+        return f"{self.name}-{self.description}"
 
 # 红，绿，蓝
 class ProductSkuValue(Model):
