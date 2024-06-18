@@ -55,7 +55,7 @@ class Api:
     model: Model|models.Model
     get_list_params: Callable[[HttpRequest], dict]
     get_create_params: Callable[[HttpRequest], dict]
-    get_update_params: Callable[[HttpRequest], dict]
+    get_update_params: Callable[[HttpRequest], dict]|None
     get_export_params: Callable[[HttpRequest], dict]
     extra: dict[str, Callable[[models.Model], Any]]
     hidden: list[str]
@@ -72,9 +72,7 @@ class Api:
         get_create_params: Callable[[HttpRequest], dict] = lambda request: {
             **json.loads(request.body)
         },
-        get_update_params: Callable[[HttpRequest], dict] = lambda request: {
-            **json.loads(request.body)
-        },
+        get_update_params: Callable[[HttpRequest], dict]|None = None,
         extra: dict[str, Callable[[models.Model], Any]] = {},
         config: Config = Config(),
         hidden: list[str] = [],
@@ -203,7 +201,7 @@ class Api:
     def update(self, request: HttpRequest):
         if not self.config.enable_update or self.model._meta.db_table in settings.LOCKING_MODIFY_TABLES:
             raise ApiForbiddenError("Update is not allowed")
-        params = self.get_update_params(request)
+        params = self.get_update_params(request) if self.get_update_params else self.get_create_params(request)
         for key in self.get_protected_fields():
             if key in params.copy():
                 params.pop(key)

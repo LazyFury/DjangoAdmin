@@ -153,6 +153,10 @@ class ProductSkuValue(Model):
     def sku_name(self):
         return f"{self.sku.name}-{self.sku.description}"
     
+    @jsonGetter("sku_id")
+    def get_sku_id(self):
+        return f"{self.sku.id}"
+    
 class Product(Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)

@@ -28,7 +28,7 @@ onMounted(()=>{
 </script>
 
 <template>
-  <main>
+  <main class="p-2">
     <div class="flex flex-row gap-2 flex-wrap">
       <div class="flex-1">
         <TheWelcome />

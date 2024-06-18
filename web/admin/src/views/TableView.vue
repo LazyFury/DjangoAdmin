@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="p-2">
         <ElCard shadow="never">
             <!-- {{ $route.meta }} -->
             <div class="flex flex-row">

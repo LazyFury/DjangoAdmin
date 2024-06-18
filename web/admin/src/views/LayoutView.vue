@@ -46,7 +46,7 @@ const logout = () => {
 <template>
   <div class="min-h-screen">
     <el-container class="min-h-screen bg-gary-100">
-        <div class="light:text-light-header-text light:bg-light-header-bg dark:bg-dark dark:text-white fixed w-full px-4 box-border border-solid border-0 border-b-1px border-gray-300" style="left: 0;top:0;z-index: 99;">
+        <div class="light:text-light-header-text light:bg-light-header-bg dark:bg-dark dark:text-white fixed w-full px-4 box-border border-solid border-0 border-b-1px light:border-gray-300 dark:border-dark" style="left: 0;top:0;z-index: 99;">
             <div class="flex flex-row items-center py-2">
                 <div class="flex-1">
                     <UIButton>
@@ -76,14 +76,14 @@ const logout = () => {
                 </div>
             </div>
         </div>
-        <div class="flex flex-row flex-1 bg-gray-100">
-            <div class="w-154px dark:bg-dark-800 light:bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px border-gray-200" style="z-index: 98;">
+        <div class="flex flex-row flex-1 light:bg-gray-100">
+            <div class="w-154px dark:bg-dark-800 fixed light:bg-white h-screen overflow-y-auto hidden-scroll-bar top-48px border-0 border-solid border-r-1px light:border-gray-200 dark:border-dark" :style="subMenuStore.hasSubMenu ? `z-index: 998;box-shadow: 6px 0 24px #00000010;` : ''">
                 <Menu :menus="menus" />
                 <div class="h-100px"></div>
             </div>
             <div class="w-154px"></div>
-            <div class="flex-1 mt-60px flex flex-col dark:bg-dark-700">
-                <main class="px-2 flex-1">
+            <div class="flex-1 mt-48px flex flex-col dark:bg-dark-700">
+                <main class="flex-1">
                     <RouterView ></RouterView>
                 </main>
             </div>

@@ -81,3 +81,15 @@ html {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+
+.dark{
+    .el-dialog{
+        border:1px solid #3a3a3c;
+        border-radius: 10px;
+    }
+
+    .w-line{
+        background-color: #555;
+    }
+}

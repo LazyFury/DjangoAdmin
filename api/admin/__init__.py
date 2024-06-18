@@ -15,7 +15,17 @@ import json
 
 from modules.posts.models import Article, ArticleCategory, ArticleTag
 from modules.settings.models import Dict, DictGroup
-from modules.store.models import ProductAttr, ProductAttrGroup, ProductAttrValue, ProductBrand, ProductCategory, ProductService, ProductSku, ProductSkuValue, ProductTag
+from modules.store.models import (
+    ProductAttr,
+    ProductAttrGroup,
+    ProductAttrValue,
+    ProductBrand,
+    ProductCategory,
+    ProductService,
+    ProductSku,
+    ProductSkuValue,
+    ProductTag,
+)
 
 api = Router(prefix="/admin/api")
 api.use(request_aspects, sort=0)
@@ -38,8 +48,8 @@ Api(
     ),
     hidden=["password"],
     get_update_params=lambda request: dict_utils.filter_with_allow_keys(
-        {**json.loads(request.body)}, ["username", "avatar","id"]
-    )
+        {**json.loads(request.body)}, ["username", "avatar", "id"]
+    ),
 ).register(api, "/user")
 Api(Group).register(api, "/user-group")
 Api(UserToken).register(api, "/user-log")
@@ -105,7 +115,7 @@ Api(
     ProductCategory,
     get_list_params=lambda request: {**request.GET.dict(), "parent_id__isnull": True},
     get_update_params=lambda request: dict_utils.filter_with_allow_keys(
-        {**json.loads(request.body)}, ["parent_id", "id", "name","icon"]
+        {**json.loads(request.body)}, ["parent_id", "id", "name", "icon"]
     ),
     get_export_params=lambda request: {**request.GET.dict()},
 ).register(api, "/product-category")
@@ -117,21 +127,36 @@ Api(ProductAttrGroup).register(api, "/product-attr-group")
 
 def get_product_attr_params(request):
     return dict_utils.filter_with_allow_keys(
-        {**json.loads(request.body)}, ["id", "name","description","group_id"]
+        {**json.loads(request.body)}, ["id", "name", "description", "group_id"]
     )
-Api(ProductAttr,
+
+
+Api(
+    ProductAttr,
     get_create_params=get_product_attr_params,
-    get_update_params=get_product_attr_params
-    ).register(api, "/product-attr")
+    get_update_params=get_product_attr_params,
+).register(api, "/product-attr")
+
 
 def get_product_attr_value_params(request):
     return dict_utils.filter_with_allow_keys(
-        {**json.loads(request.body)}, ["attr_id", "id", "name","description"]
+        {**json.loads(request.body)}, ["attr_id", "id", "name", "description"]
     )
-Api(ProductAttrValue,get_create_params=get_product_attr_value_params,get_update_params=get_product_attr_value_params).register(api, "/product-attr-value")
 
-Api(ProductSku).register(api,"/product-sku")
-Api(ProductSkuValue).register(api, "/product-sku-value")
+
+Api(
+    ProductAttrValue,
+    get_create_params=get_product_attr_value_params,
+    get_update_params=get_product_attr_value_params,
+).register(api, "/product-attr-value")
+
+Api(ProductSku).register(api, "/product-sku")
+Api(
+    ProductSkuValue,
+    get_create_params=lambda request: dict_utils.filter_with_allow_keys(
+        json.loads(request.body), ["id", "name", "description", "sku_id"]
+    ),
+).register(api, "/product-sku-value")
 
 from .menu import *  # noqa: F401, E402, F403
 from .user import *  # noqa: F401, E402, F403
