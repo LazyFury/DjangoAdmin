@@ -20,7 +20,7 @@ class Dict(Model):
     
     @jsonGetter(name='group_id')
     def get_group_id(self):
-        return self.group.id
+        return f"{self.group.id}"
 
     class Meta:
         verbose_name = 'Dictionary'

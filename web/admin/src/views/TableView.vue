@@ -30,7 +30,7 @@
             </div>
 
             <div v-if="searchFormFields && searchFormFields.length > 0">
-                <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-2">
+                <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e => { }" class="mb-0">
                     <div v-for="fields in searchFormFields">
                         <ElFormItem v-show="!field.hidden" v-for="field in fields" :key="field.prop"
                             :label="field.label" :prop="field.prop" :class="[]"
@@ -50,6 +50,7 @@
                         </ElButton>
                     </ElFormItem>
                 </ElForm>
+                <ElDivider class="!mb-4 !mt-0"></ElDivider>
             </div>
 
 
@@ -80,7 +81,7 @@
                 </ElButton>
             </div>
             <div class="overflow-x-auto" :style="{
-                width:`calc(100vw - ${subMenuStore.hasSubMenu ? 412 : 180}px)`
+                width: `calc(100vw - ${subMenuStore.hasSubMenu ? 412 : 180}px)`
             }">
                 <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
                     :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
@@ -165,7 +166,8 @@
         <slot v-for="form in formsList" :name="form.prop">
             <ElDialog :title="form.title" :class="form.prop" v-model="isFormsActiveMapping[form.prop]"
                 class="!md:w-640px !w-full !lg:w-960px">
-                <Form :key="$route.meta.key + '-form-' + form.prop" :ref="form.prop" :title="form.title" :fields="form.rows" @submitForm="e => handleFormSubmit(e, form)">
+                <Form :key="$route.meta.key + '-form-' + form.prop" :ref="form.prop" :title="form.title"
+                    :fields="form.rows" @submitForm="e => handleFormSubmit(e, form)">
                 </Form>
             </ElDialog>
         </slot>
@@ -198,7 +200,7 @@ export default {
             fromActionsMapping: {}
         };
     },
-    setup(){
+    setup() {
         const subMenuStore = useSubMenuStore()
         return {
             subMenuStore
@@ -351,9 +353,11 @@ export default {
                     }
                 })
             }
-
         },
         handleCreate() {
+            if(this.meta?.table.add_btn){
+                return this.handlerRowAction({}, this.meta?.table.add_btn)
+            }
             this.handleRowActionForm({}, {
                 form_key: 'create',
                 type: 'form',
@@ -370,9 +374,16 @@ export default {
                     return this.handleRowActionForm(row, action)
                 }
                 if (action.type == 'router') {
-                    let query = {
-                        [action.props?.query_key]: row[action.props?.query_value]
+                    let param_keys = action?.param_keys // [{k:v}]
+                    let query = {}
+                    if (param_keys) {
+                        for (let item of param_keys) {
+                            let [k,] = Object.keys(item)
+                            let v = row[item[k]]
+                            query[k] = v
+                        }
                     }
+                    console.log(query, param_keys)
                     return this.$router.push({
                         path: action.path,
                         query
@@ -431,10 +442,13 @@ export default {
             let { api_key, param_keys, method } = action
             if (api_key) {
                 let params = {}
+
                 if (param_keys) {
-                    param_keys.forEach(key => {
-                        params[key] = row[key]
-                    });
+                    for (let item of param_keys) {
+                        let [k,] = Object.keys(item)
+                        let v = row[item[k]]
+                        params[k] = v
+                    }
                 }
                 console.log(this.api)
                 let url = this.api[api_key]

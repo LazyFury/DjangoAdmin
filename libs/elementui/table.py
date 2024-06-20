@@ -29,7 +29,7 @@ class ElTableAction(object):
         icon: str,
         api_key: str,
         path: str = "",
-        param_keys: list = [],
+        param_keys: list[dict[str,str]] = [],
         confirm: ElConfirm | None = None,
         type: ElTableActionType = ElTableActionType.FORM,
         props: dict = {},
@@ -77,7 +77,7 @@ class DefActions:
         api_key="delete",
         confirm=ElConfirm("提示", "确定要删除吗？", type="warning"),
         type=ElTableActionType.API,
-        param_keys=["id"],
+        param_keys=[{"id":"id"}],
         props={
             "type": "danger",
         },

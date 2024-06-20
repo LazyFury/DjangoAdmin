@@ -2,7 +2,7 @@ from turtle import width
 from django.http import HttpRequest
 
 from app import settings
-from libs.elementui.base import ElApis
+from libs.elementui.base import ElApis, ElPage
 from libs.elementui.form import ElForm, ElFormItem
 from libs.elementui.menu import ElMenu, ElMenuGap, ElMenuItem
 from libs.elementui.table import (
@@ -36,6 +36,7 @@ def menus(request: HttpRequest):
                     cms_article_menu(),
                     cms_article_category_menu(),
                     cms_article_tag_menu(),
+                    cms_article_edit_menu(),
                 ],
             ),
             ElMenuItem(
@@ -774,6 +775,21 @@ def cms_article_category_menu():
     )
 
 
+def cms_article_edit_menu():
+    return ElMenuItem(
+        title="添加/编辑文章",
+        key="article-edit",
+        path="/cms/article/edit",
+        component="FormView",
+        hidden=True,
+        type=ElPage.FORM,
+        currentForm="create",
+        forms={
+            "create":article_create_form(),
+        },
+    )
+
+
 def cms_article_menu():
     return ElMenuItem(
         title="文章管理",
@@ -839,6 +855,27 @@ def cms_article_menu():
                 title="filters",
                 rows=[],
             ),
+            actions=[
+                ElTableAction(
+                    label="编辑",
+                    icon="ant-design:edit-outlined",
+                    api_key="update|create",
+                    type=ElTableActionType.ROUTER,
+                    form_key="update|create",
+                    path="/cms/article/edit",
+                    param_keys=[{"id": "id"}],
+                ),
+                DefActions.DELETE,
+            ],
+            add_btn=ElTableAction(
+                label="创建",
+                icon="ant-design:plus-outlined",
+                api_key="create",
+                type=ElTableActionType.ROUTER,
+                form_key="create",
+                path="/cms/article/edit",
+                param_keys=[],
+            )
         ),
         api=ElApis(
             list="/article.list",
@@ -848,88 +885,97 @@ def cms_article_menu():
             export="/article.export",
         ),
         forms={
-            "create": ElForm(
-                title="创建文章",
-                rows=[
-                    [
-                        ElFormItem(
-                            label="标题",
-                            prop="title",
-                            type="input",
-                            placeholder="请输入",
-                            width="540px",
-                            props={
-                                "maxlength": 64,
-                                "show-word-limit": True,
-                            },
-                        ),
-                    ],
-                    [
-                        ElFormItem(
-                            label="描述",
-                            prop="description",
-                            type="textarea",
-                            placeholder="请输入",
-                            width="540px",
-                            required=False,
-                            props={
-                                "maxlength": 255,
-                                "show-word-limit": True,
-                            },
-                        ),
-                    ],
-                    [
-                        ElFormItem(
-                            label="分类",
-                            prop="category_id",
-                            type="select",
-                            placeholder="请输入",
-                            width="320px",
-                            props={
-                                "remoteDataApi": "/article-category.list",
-                            },
-                        ),
-                        ElFormItem(
-                            label="作者",
-                            prop="author_id",
-                            type="select",
-                            placeholder="请输入",
-                            width="320px",
-                            props={
-                                "remoteDataApi": "/user.list",
-                            },
-                        ),
-                    ],
-                    [
-                        ElFormItem(
-                            label="内容",
-                            prop="content",
-                            type="quill",
-                            placeholder="请输入",
-                            width="96%",
-                            props={
-                                "rows": 10,
-                                "style": "width: 100%;",
-                            },
-                        ),
-                    ],
-                    [
-                        ElFormItem(
-                            label="标签",
-                            prop="tag_ids",
-                            type="select",
-                            placeholder="请输入",
-                            required=False,
-                            width="80%",
-                            props={
-                                "remoteDataApi": "/article-tag.list",
-                                "multiple": True,
-                            },
-                        ),
-                    ],
-                ],
-            ),
+            "create": article_create_form(),
         },
+    )
+
+
+def article_create_form():
+    return ElForm(
+        title="创建文章",
+        create_api="/article.create",
+        update_api="/article.update",
+        detail_api="/article.detail",
+        detail_param_keys=["id"],
+        buttons_container_class_name="",
+        rows=[
+            [
+                ElFormItem(
+                    label="标题",
+                    prop="title",
+                    type="input",
+                    placeholder="请输入",
+                    width="540px",
+                    props={
+                        "maxlength": 64,
+                        "show-word-limit": True,
+                    },
+                ),
+            ],
+            [
+                ElFormItem(
+                    label="描述",
+                    prop="description",
+                    type="textarea",
+                    placeholder="请输入",
+                    width="540px",
+                    required=False,
+                    props={
+                        "maxlength": 255,
+                        "show-word-limit": True,
+                    },
+                ),
+            ],
+            [
+                ElFormItem(
+                    label="分类",
+                    prop="category_id",
+                    type="select",
+                    placeholder="请输入",
+                    width="320px",
+                    props={
+                        "remoteDataApi": "/article-category.list",
+                    },
+                ),
+                ElFormItem(
+                    label="作者",
+                    prop="author_id",
+                    type="select",
+                    placeholder="请输入",
+                    width="320px",
+                    props={
+                        "remoteDataApi": "/user.list",
+                    },
+                ),
+            ],
+            [
+                ElFormItem(
+                    label="内容",
+                    prop="content",
+                    type="quill",
+                    placeholder="请输入",
+                    width="96%",
+                    props={
+                        "rows": 10,
+                        "style": "width: 100%;",
+                    },
+                ),
+            ],
+            [
+                ElFormItem(
+                    label="标签",
+                    prop="tag_ids",
+                    type="select",
+                    placeholder="请输入",
+                    required=False,
+                    width="80%",
+                    props={
+                        "remoteDataApi": "/article-tag.list",
+                        "multiple": True,
+                    },
+                ),
+            ],
+        ],
     )
 
 
@@ -987,11 +1033,10 @@ def set_dict_group_menu():
                     api_key="",
                     icon="ant-design:search",
                     path="/set/dict",
+                    param_keys=[{"group_id": "id"}],
                     type=ElTableActionType.ROUTER,
                     props={
                         "target": "_blank",
-                        "query_key": "group_id",
-                        "query_value": "id",
                     },
                 ),
                 DefActions.DELETE,

@@ -1,7 +1,8 @@
 <template>
     <div>
         <!-- {{ form }} -->
-        <ElForm ref="formRef" @submit.prevent.stop="()=>{}" :inline="false" :model="form" :rules="rules" :label-width="120" class="mt-0">
+        <ElForm ref="formRef" @submit.prevent.stop="() => { }" :inline="false" :model="form" :rules="rules"
+            :label-width="120" class="mt-0">
             <div class="mb-4 grid xl:grid-cols-2">
                 <div v-for="field in fields" v-if="!multiRowMode">
                     <span>not support yet!</span>
@@ -21,11 +22,18 @@
                     </ElFormItem>
                 </template>
             </div>
+
+            <ElDivider class="!my-4" />
+
+            <ElFormItem label=" ">
+                <div class="" :class="buttonsContainerClassName">
+                    <ElButton @click="handleSubmit()" type="primary" class="w-24">保存</ElButton>
+                </div>
+            </ElFormItem>
+
         </ElForm>
 
-        <div class="flex flex-row items-center justify-end">
-            <ElButton @click="handleSubmit()" type="primary" class="w-24">保存</ElButton>
-        </div>
+
     </div>
 </template>
 <script>
@@ -37,7 +45,7 @@ export default {
             type: Array,
             default: () => []
         },
-        title:{
+        title: {
             type: String,
             default: ''
         },
@@ -48,6 +56,10 @@ export default {
         progressFormData: {
             type: Function,
             default: (res) => res
+        },
+        buttonsContainerClassName: {
+            type: String,
+            default: 'flex flex-row items-center justify-end'
         }
     },
     computed: {
@@ -87,7 +99,7 @@ export default {
         };
     },
     watch: {
-      
+
     },
     methods: {
         handleSubmit() {
@@ -100,16 +112,19 @@ export default {
         edit(data) {
             this.reset()
             let form = JSON.parse(JSON.stringify(data))
-            if(this.progressFormData && typeof this.progressFormData === 'function'){
+            if (this.progressFormData && typeof this.progressFormData === 'function') {
                 form = this.progressFormData(form)
             }
             this.setDefaultValues()
-            this.form = Object.assign(this.form,form)
+            this.form = Object.assign(this.form, form)
             this.$forceUpdate()
+        },
+        setValues(data) {
+            this.edit(data)
         },
         setDefaultValues() {
             this.flatFields.forEach(el => {
-               this.form[el.prop] = el.defaultValue
+                this.form[el.prop] = el.defaultValue
             })
         },
         close() {

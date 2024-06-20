@@ -1,9 +1,9 @@
 <template>
-    <div class="flex flex-row">
-        <div class="light:bg-white dark:bg-dark sub-menu" style="height:calc(100vh - 48px);position: relative;">
+    <div class="flex flex-row relative">
+        <div class="light:bg-white dark:bg-dark sub-menu" style="height:calc(100vh - var(--header-bar-height));position: relative;overflow-y: auto;">
             <Menu class="w-180px" :menus="subMenuStore.menus" :is-sub-menu="true"></Menu>
         </div>
-        <div style="flex:1;width:100%">
+        <div style="flex:1;width:100%;height: calc(100vh - var(--header-bar-height));overflow-y: auto;">
             <RouterView :key="$route.meta.key"></RouterView>
         </div>
     </div>

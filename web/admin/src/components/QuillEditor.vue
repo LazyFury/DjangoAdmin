@@ -16,12 +16,17 @@
         data(){
             return {
                 value: '',
+                firstInit: true
             }
         },
         watch:{
             modelValue:{
                 handler(val){
                     this.value = val
+                    if(val && quill && this.firstInit){
+                        this.firstInit = false
+                        quill.clipboard.dangerouslyPasteHTML(0, val)
+                    }
                 },
                 immediate: true
             },
@@ -83,8 +88,8 @@
 
 
 <style lang="scss" scope>
-.ql-container{
-    min-height: 300px;
+.ql-editor{
+    height: 300px;
 }
 .ql-snow .ql-picker-label::before{
     position: absolute;

@@ -28,6 +28,8 @@ class ElMenuItem(ElWidget):
             "update": ElForm("Update"),
         },
         type=ElPage.TABLE,
+        hidden=False,
+        currentForm:str = "create",
     ):
         self.type = "menu-item"
         self.title = title
@@ -40,6 +42,8 @@ class ElMenuItem(ElWidget):
         self.api = api
         self.forms = forms
         self.type = type
+        self.hidden = hidden
+        self.currentForm = currentForm
 
     @jsonGetter(name="title_lower")
     def title_lower(self):

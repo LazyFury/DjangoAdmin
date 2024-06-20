@@ -12,7 +12,7 @@ class ElPage(enum.Enum):
     CUSTOM = "custom"
 
 class ElApis:
-    def __init__(self, list:str,create:str="",update:str="",delete:str="",**kwargs):
+    def __init__(self, list:str="",create:str="",update:str="",delete:str="",**kwargs):
         self.list = list
         self.create = create
         self.update = update

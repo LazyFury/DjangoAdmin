@@ -7,8 +7,8 @@
             </div>
 
             <ElForm size="large" @submit.native.prevent="handleSubmit" :model="loginForm" :rules="loginFormRules" ref="loginFormRef" label-position="top" class="mt-4">
-                <ElFormItem label="Username" prop="username" key="username">
-                    <ElInput v-model="loginForm.username" type="text" placeholder="Username"></ElInput>
+                <ElFormItem label="Email" prop="username" key="email">
+                    <ElInput v-model="loginForm.username" type="email" placeholder="Email"></ElInput>
                 </ElFormItem>
                 <ElFormItem label="Password" prop="password" key="password">
                     <ElInput v-model="loginForm.password" type="password" placeholder="Password"></ElInput>

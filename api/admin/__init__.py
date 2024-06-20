@@ -77,7 +77,7 @@ Api(
 # 文章内容管理
 Api(
     Article,
-    get_update_params=lambda request: dict_utils.filter_with_not_allow_keys(
+    get_create_params=lambda request: dict_utils.filter_with_allow_keys(
         dict_utils.modify_with_callback(
             {
                 **json.loads(request.body),
@@ -86,15 +86,7 @@ Api(
                 "tag_ids": lambda data: ",".join(data.get("tag_ids", [])),
             },
         ),
-        ["author", "category"],
-    ),
-    get_create_params=lambda request: dict_utils.modify_with_callback(
-        {
-            **json.loads(request.body),
-        },
-        {
-            "tag_ids": lambda data: ",".join(data.get("tag_ids", [])),
-        },
+        ["id","title", "content", "category_id", "tag_ids","author_id"],
     ),
 ).register(api, "/article")
 
