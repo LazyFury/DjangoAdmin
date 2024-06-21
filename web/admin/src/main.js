@@ -139,8 +139,8 @@ request.get('/menus', {
         let el = menus[i]
         registerRoute(el, "layout")
     }
-
 }).finally(() => {
+    // 路由注册失败会跳转登录页是在 ./router/index.js 中,root 跳 overview,overview 没有被 api 注册路由覆盖的话就自动跳登录页
     console.log("router", router.getRoutes())
     app.use(router)
     app.mount('#app')

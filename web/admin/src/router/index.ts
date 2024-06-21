@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: "/overview",
       name: "overview",
-      component: () => import('../views/EmptyView.vue'),
+      redirect: { name: 'login' },
     },
 
     // login

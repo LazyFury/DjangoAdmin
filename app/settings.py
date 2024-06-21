@@ -182,8 +182,7 @@ LOGGING = {
 AUTH_WHITE_LIST = [
     "/admin/api/login",
     "/admin/api/logout",
-    "/admin/api/menus",
-    "/admin/api/common/upload",
+    # "/admin/api/common/upload",
 ]
 ## 权限默认的content_type_id
 PERMISSION_DEFAULT_CONTENT_TYPE_ID = 8
