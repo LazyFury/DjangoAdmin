@@ -1,4 +1,3 @@
-from turtle import width
 from django.http import HttpRequest
 
 from api.admin.ui.article import (
@@ -20,7 +19,7 @@ from api.admin.ui.product import (
 )
 from api.admin.ui.user import user_group_menu, user_menu, user_token_menu
 from app import settings
-from libs.elementui.base import ElApis, ElPage
+from libs.elementui.base import ElApis
 from libs.elementui.form import ElForm, ElFormItem
 from libs.elementui.menu import ElMenu, ElMenuGap, ElMenuItem
 from libs.elementui.table import (
