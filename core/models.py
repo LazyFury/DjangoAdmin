@@ -176,3 +176,13 @@ class UserToken(Model):
             setattr(token, k, v)
         token.save()
         return token
+    
+
+    @staticmethod
+    def set_invalid_by_token(token):
+        token = UserToken.objects.filter(token=token).first()
+        if not token:
+            return False
+        token.expire_at = timezone.now() - timedelta(minutes=5)
+        token.save()
+        return True

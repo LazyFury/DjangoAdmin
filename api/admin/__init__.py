@@ -45,6 +45,7 @@ Api(
     User,
     config=Api.Config(
         enable_delete=False,
+        enable_create=False,
     ),
     hidden=["password"],
     get_update_params=lambda request: dict_utils.filter_with_allow_keys(
