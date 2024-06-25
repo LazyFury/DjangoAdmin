@@ -18,8 +18,8 @@ class Wrapped(object):
         return f"Wrapped({self.func.__name__},{self.ext})"
     
 
-def jsonGetter(name=""):
+def jsonGetter(name="",ext={}):
     def wrapper(func):
-        return Wrapped(func,json=True,name=name)
+        return Wrapped(func,json=True,name=name,**ext)
     return wrapper
 
