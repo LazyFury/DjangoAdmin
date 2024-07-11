@@ -77,7 +77,7 @@ const logout = () => {
             </div>
         </div>
         <div class="flex flex-row flex-1 light:bg-gray-100" style="padding-top: var(--header-bar-height)">
-            <div class="w-154px dark:bg-dark-800 fixed light:bg-white h-screen overflow-y-auto hidden-scroll-bar border-0 border-solid border-r-1px light:border-gray-200 dark:border-dark" :style="subMenuStore.hasSubMenu ? `z-index: 998;box-shadow: 6px 0 24px #00000010;` : ''">
+            <div class="w-154px dark:bg-dark-800 fixed light:bg-white h-screen overflow-y-auto hidden-scroll-bar border-0 border-solid border-r-1px light:border-gray-200 dark:border-dark" :style="subMenuStore.hasSubMenu ? `z-index: 998;box-shadow: 6px 0 36px #00000020;` : ''">
                 <div style="height: var(mt-48px );"></div>
                 <Menu :menus="menus" />
                 <div class="h-100px"></div>
