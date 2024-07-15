@@ -64,9 +64,16 @@ def menus(request: HttpRequest):
                 component="SubMenuView",
                 children=[
                     product_category_menu(),
-                    ElMenuGap("商品规格相关设置"),
-                    product_sku_menu(),
-                    product_sku_value_menu(),
+                    ElMenuItem(
+                        title="商品规格",
+                        key="product-sku",
+                        path="/products/product-sku",
+                        component="TableView",
+                        children=[
+                            product_sku_menu(),
+                            product_sku_value_menu(),
+                        ]
+                    ),
                     ElMenuGap("其他设置"),
                     ElMenuItem(
                         title="商品属性",
