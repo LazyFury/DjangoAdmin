@@ -23,9 +23,9 @@
             modelValue:{
                 handler(val){
                     this.value = val
-                    if(val && quill && this.firstInit){
+                    if(quill && this.firstInit){
                         this.firstInit = false
-                        quill.clipboard.dangerouslyPasteHTML(0, val)
+                        quill.clipboard.dangerouslyPasteHTML(0, val || "")
                     }
                 },
                 immediate: true
