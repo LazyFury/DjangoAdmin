@@ -16,6 +16,7 @@ import json
 from modules.posts.models import Article, ArticleCategory, ArticleTag
 from modules.settings.models import Dict, DictGroup
 from modules.store.models import (
+    Product,
     ProductAttr,
     ProductAttrGroup,
     ProductAttrValue,
@@ -116,7 +117,10 @@ Api(ProductBrand).register(api, "/product-brand")
 Api(ProductTag).register(api, "/product-tag")
 Api(ProductService).register(api, "/product-service")
 Api(ProductAttrGroup).register(api, "/product-attr-group")
-
+Api(Product,
+    get_create_params=lambda request:dict_utils.filter_with_not_allow_keys(
+        {**json.loads(request.body)}, ["category", "brand"]
+    )).register(api, "/product")
 
 def get_product_attr_params(request):
     return dict_utils.filter_with_allow_keys(

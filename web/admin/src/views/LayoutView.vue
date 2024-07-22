@@ -50,7 +50,7 @@ const logout = () => {
             <div class="flex flex-row items-center py-2">
                 <div class="flex-1">
                     <UIButton>
-                        <span class="text-xl font-bold !mt-0">{{$t('AdminTitle')}}</span>
+                        <span class="text-lg !mt-0">{{$t('AdminTitle')}}</span>
                     </UIButton>
                 </div>
                 <div class="flex flex-row items-center justify-center gap-4">
@@ -77,12 +77,12 @@ const logout = () => {
             </div>
         </div>
         <div class="flex flex-row flex-1 light:bg-gray-100" style="padding-top: var(--header-bar-height)">
-            <div class="w-154px dark:bg-dark-800 fixed light:bg-white h-screen overflow-y-auto hidden-scroll-bar border-0 border-solid border-r-1px light:border-gray-200 dark:border-dark" :style="subMenuStore.hasSubMenu ? `z-index: 998;box-shadow: 6px 0 36px #00000020;` : ''">
+            <div class="w-124px dark:bg-dark-800 fixed light:bg-white h-screen overflow-y-auto hidden-scroll-bar border-0 border-solid border-r-1px light:border-gray-200 dark:border-dark" :style="subMenuStore.hasSubMenu ? `z-index: 998;box-shadow: 6px 0 36px #00000010;` : ''">
                 <div style="height: var(mt-48px );"></div>
                 <Menu :menus="menus" />
                 <div class="h-100px"></div>
             </div>
-            <div class="w-154px"></div>
+            <div class="w-124px"></div>
             <div class="flex-1 flex flex-col dark:bg-dark-700">
                 <main class="flex-1">
                     <RouterView ></RouterView>

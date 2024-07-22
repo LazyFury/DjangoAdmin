@@ -1,4 +1,6 @@
+import json
 from django.db import models
+from numpy import double
 from common.exception import ApiError
 from common.export import XlsxExportConfig, XlsxExportField
 from common.models import Model
@@ -161,7 +163,7 @@ class Product(Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     cover = models.TextField(blank=True)
-    price = models.IntegerField()
+    price = models.DecimalField(decimal_places=2, max_digits=10)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey(ProductBrand, on_delete=models.DO_NOTHING)
     tag_ids = models.CharField(max_length=255)
@@ -177,6 +179,49 @@ class Product(Model):
 
     def __str__(self):
         return self.name
+    
+    @jsonGetter(name="category_name")
+    def category_name(self):
+        return self.category.name
+    
+    @jsonGetter(name="category_id")
+    def get_category_id(self):
+        return f"{self.category.id}"
+    
+    @jsonGetter(name="brand_name")
+    def brand_name(self):
+        return self.brand.name
+    
+    @jsonGetter(name="brand_id")
+    def get_brand_id(self):
+        return f"{self.brand.id}"
+    
+    @jsonGetter(name="tag_ids")
+    def get_tag_ids(self):
+        return self.tag_ids.split(",")
+    
+    @jsonGetter(name="price_str")
+    def price_str(self):
+        return f"￥{self.price:.2f}"
+    
+
+    def save(self, *args, **kwargs):
+        if isinstance(self.tag_ids,list):
+            self.tag_ids = ",".join(self.tag_ids)
+        if isinstance(self.service_ids,list):
+            self.service_ids = ",".join(self.service_ids)
+        if self.tag_ids:
+            tag_ids = self.tag_ids.split(",")
+            tags = ProductTag.objects.filter(id__in=tag_ids)
+            if len(tags) != len(tag_ids):
+                raise ApiError("标签不存在")
+        if self.service_ids:
+            service_ids = self.service_ids.split(",")
+            services = ProductService.objects.filter(id__in=service_ids)
+            if len(services) != len(service_ids):
+                raise ApiError("服务不存在")
+        super().save(*args, **kwargs)
+    
 
 
 class ProductSkuRelation(Model):

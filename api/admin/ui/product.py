@@ -535,3 +535,141 @@ def product_category_menu():
         },
     )
 
+
+
+def product_list_menu():
+    return ElMenuItem(
+        title="商品管理",
+        key="product-management",
+        icon="ant-design:shopping-outlined",
+        path="/products/product-management",
+        component="TableView",
+        table=ElTable(
+            title="商品列表",
+            description="商品列表",
+            columns=[
+                # name 
+                ElTableColumn(prop="name", label="商品", width="180"),
+                # description
+                ElTableColumn(prop="description", label="描述", width="180"),
+                # cover 
+                ElTableColumn(prop="cover", label="封面", width="180", type="image"),
+                # price 
+                ElTableColumn(prop="price_str", label="价格", width="180"),
+                # category 
+                ElTableColumn(prop="category_name", label="分类", width="180"),
+            ],
+            search=ElForm(
+                title="search",
+                rows=[
+                    [
+                        ElFormItem(
+                            label="商品",
+                            prop="name",
+                            placeholder="请输入商品",
+                        ),
+                    ]
+                ],
+            ),
+        ),
+        api=ElApis(
+            list="/product.list",
+            delete="/product.delete",
+            create="/product.create",
+            update="/product.update",
+            export="/product.export",
+        ),
+        forms={
+            "create": ElForm(
+                title="创建商品",
+                rows=[
+                    [
+                        # cover
+                        ElFormItem(
+                            label="封面",
+                            prop="cover",
+                            type="upload-image",
+                            placeholder="请输入",
+                            props={"multiple": False},
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="商品",
+                            prop="name",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="描述",
+                            prop="description",
+                            type="textarea",
+                            placeholder="请输入",
+                            width="80%",
+                        ),
+                    ],
+                    [
+                        ElFormItem(
+                            label="价格",
+                            prop="price",
+                            type="input",
+                            placeholder="请输入",
+                        ),
+                    ],
+                    [
+                        # category
+                        ElFormItem(
+                            label="分类",
+                            prop="category_id",
+                            type="select",
+                            placeholder="请输入",
+                            width="320px",
+                            props={
+                                "remoteDataApi": "/product-category.list",
+                            },
+                        ),
+                    ],
+                    # brand
+                    [
+                        ElFormItem(
+                            label="品牌",
+                            prop="brand_id",
+                            type="select",
+                            placeholder="请输入",
+                            width="320px",
+                            props={
+                                "remoteDataApi": "/product-brand.list",
+                            },
+                        ),
+                 
+                        # tag_ids 
+                        ElFormItem(
+                            label="标签",
+                            prop="tag_ids",
+                            type="select",
+                            placeholder="请输入",
+                            width="320px",
+                            props={
+                                "remoteDataApi": "/product-tag.list",
+                                "multiple": True,
+                            },
+                        ),
+              
+                        # service_ids 
+                        ElFormItem(
+                            label="服务",
+                            prop="service_ids",
+                            type="select",
+                            placeholder="请输入",
+                            width="320px",
+                            props={
+                                "remoteDataApi": "/product-service.list",
+                            },
+                        ),
+                    ]
+                ],
+            )
+        }
+    )

@@ -1,3 +1,4 @@
+from decimal import Decimal
 import enum
 import inspect
 from typing import Any, Callable
@@ -5,6 +6,7 @@ import uuid
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
 from django.db.models.query import QuerySet
+from numpy import isin
 from common.wrapped import Wrapped
 from django.utils import timezone
 from datetime import datetime
@@ -45,6 +47,8 @@ class Serozalizer:
             return str(obj)
         if isinstance(obj,enum.Enum):
             return obj.value
+        if isinstance(obj, Decimal):
+            return float(obj)
         if isinstance(obj, object):
             return serizalize(obj)
         raise Exception(f"无法解析的类型:{type(obj)}")
