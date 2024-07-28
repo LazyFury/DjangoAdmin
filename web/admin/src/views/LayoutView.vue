@@ -12,6 +12,7 @@ const router = useRouter()
 const translateStore = useTranslateStore()
 const profileStore = useProfileStore()
 const subMenuStore = useSubMenuStore()
+
 onMounted(()=>{
     request.get('/menus').then(res=>{
         menus.value = (res.data.data || []).filter(el=>el.hidden !== true).map(el=>{

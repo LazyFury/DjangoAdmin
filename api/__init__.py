@@ -1,12 +1,13 @@
+import django
+from django.contrib.auth.models import Group, Permission
 from django.db.models.base import Model as Model
 from django.http import JsonResponse
+
 from common.api import Api
 from common.middleware import clear_context_each_request, cors_middleware, get_user_middleware, request_aspects
 from common.router import Router
 from common.serizalize import ModelSerozalizer, serizalize
 from common.utils.contextholder import ContextHolder
-import django
-from django.contrib.auth.models import Group, Permission
 from core.models import User
 
 api = Router("/api/v1")
