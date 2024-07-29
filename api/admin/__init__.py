@@ -1,3 +1,8 @@
+import json
+
+from django.contrib.auth.models import Group, Permission
+from django.utils.translation import gettext as t
+
 from common.api import Api
 from common.middleware import (
     auth_middleware,
@@ -9,10 +14,6 @@ from common.router import Router
 from common.tools.upload import upload_handler
 from common.utils import dict_utils
 from core.models import User, UserToken
-from django.contrib.auth.models import Group, Permission
-from django.utils.translation import gettext as t
-import json
-
 from modules.posts.models import Article, ArticleCategory, ArticleTag
 from modules.settings.models import Dict, DictGroup
 from modules.store.models import (
@@ -88,7 +89,7 @@ Api(
                 "tag_ids": lambda data: ",".join(data.get("tag_ids", [])),
             },
         ),
-        ["id","title", "content", "category_id", "tag_ids","author_id"],
+        ["id","title", "content","description", "category_id", "tag_ids","author_id"],
     ),
 ).register(api, "/article")
 

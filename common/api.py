@@ -144,7 +144,7 @@ class Api:
         )
 
     def get(self, request: HttpRequest):
-        id = request.GET.get("id")
+        id = request.GET.get("id")  # noqa: A001
         if not id:
             raise ApiNotFoundError("id is required")
         obj = self.model.objects.filter(**self.extra_search_condition(request)).get(
@@ -222,7 +222,7 @@ class Api:
         for key in self.get_protected_fields():
             if key in params.copy():
                 params.pop(key)
-        id = params.get("id")
+        id = params.get("id")  # noqa: A001
         if not id:
             raise ApiNotFoundError("id is required")
         obj = self.model.objects.filter(**self.extra_search_condition(request)).get(
@@ -243,7 +243,7 @@ class Api:
             raise ApiForbiddenError("Delete is not allowed")
         params = {**json.loads(request.body)}
         ids = params.get("ids")
-        id = params.get("id")
+        id = params.get("id")  # noqa: A001
 
         if not ids and not id:
             raise ApiNotFoundError("ids/id is required")
@@ -368,10 +368,10 @@ class Api:
             for row in ws.iter_rows(min_row=1):
                 for cell in row:
                     coordinate = cell.coordinate
-                    colIndex = coordinate[0]
-                    colIndexInt = column_index_from_string(colIndex)
+                    col_index = coordinate[0]
+                    col_index_int = column_index_from_string(col_index)
                     # print("format",coordinate,colIndex,colIndexInt)
-                    field = self.get_xlsx_fields()[colIndexInt - 1]
+                    field = self.get_xlsx_fields()[col_index_int - 1]
                     if field.type == "image":
                         if cell.value:
                             # Image 不支持设置 size、就算修改行高也要再读一遍文件

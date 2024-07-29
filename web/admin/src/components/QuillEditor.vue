@@ -25,7 +25,9 @@
                     this.value = val
                     if(quill && this.firstInit){
                         this.firstInit = false
-                        quill.clipboard.dangerouslyPasteHTML(0, val || "")
+                        setTimeout(() => {
+                            quill.clipboard.dangerouslyPasteHTML(0, val || "")
+                        }, 100);
                     }
                 },
                 immediate: true
@@ -65,7 +67,7 @@
 
             setTimeout(() => {
                 quill.root.innerHTML = this.value
-            }, 100);
+            }, 200);
 
             quill.on('text-change', function(delta, oldDelta, source) {
                 console.log('text-change', delta, oldDelta, source);

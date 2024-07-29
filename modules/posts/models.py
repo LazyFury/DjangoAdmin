@@ -5,6 +5,7 @@ from common.export import XlsxExportConfig, XlsxExportField
 from common.models import Model
 from common.wrapped import jsonGetter
 
+
 # Create your models here.
 class ArticleTag(Model):
     tag = models.CharField(max_length=255)
@@ -158,4 +159,13 @@ class Article(Model):
 
     @jsonGetter(name="description")
     def get_description(self):
-        return self.description if self.description else self.get_content_desc_without_html(100) or 'No description'
+        return self.description or ""
+    
+    def save(self,*args, **kwargs):
+        if self.tag_ids:
+            for tag_id in self.tag_ids.split(','):
+                if not ArticleTag.objects.filter(id=tag_id).exists():
+                    raise ApiError(f'标签{tag_id}不存在')
+        if not self.description:
+            self.description = self.get_content_desc_without_html()
+        super().save(*args, **kwargs)

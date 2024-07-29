@@ -1,13 +1,13 @@
 import datetime
-from hashlib import md5
 import os
 import random
+from hashlib import md5
 
-from django.http import HttpRequest
+from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
+from django.http import HttpRequest
 
 from common.response import ApiJsonResponse
-from django.conf import settings
 
 
 def get_setting(key, default=None):
