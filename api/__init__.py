@@ -10,6 +10,8 @@ from common.serizalize import ModelSerozalizer, serizalize
 from common.utils.contextholder import ContextHolder
 from core.models import User
 
+from .admin import api as admin_api
+
 api = Router("/api/v1")
 
 api.use(cors_middleware)  # add cors middleware
@@ -71,5 +73,15 @@ def hello_name(request):
             "version": django.get_version(),
             "thread_name": ContextHolder.get_context_kv("thread_name"),
             "count": ContextHolder.get_context_kv_pre_request(request, "count"),
+        }
+    )
+
+
+@api.get("/docs")
+def docs(request):
+    return JsonResponse(
+        {
+            "api": [serizalize(route) for route in api.routes],
+            "admin":[serizalize(route) for route in admin_api.routes],
         }
     )
