@@ -1,14 +1,15 @@
-from datetime import timedelta
 import re
 import uuid
-from django.db import models
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.http import HttpRequest
 from django.utils import timezone
 
 from common.export import XlsxExportConfig, XlsxExportField
-from common.wrapped import jsonGetter
 from common.models import Model
+from common.wrapped import jsonGetter
 
 
 class User(AbstractUser, Model):

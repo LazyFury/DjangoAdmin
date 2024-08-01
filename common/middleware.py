@@ -1,12 +1,14 @@
 import datetime
-from django.http import HttpRequest, HttpResponse
+
 from django.contrib.auth.models import AnonymousUser
+from django.http import HttpRequest, HttpResponse
 
 from app import settings
 from common.exception import ApiNotAuthorizedError
 from common.response import ApiJsonResponse
 from common.utils.contextholder import ContextHolder
 from core.models import UserToken
+
 
 def modify_cors_response(response):
     response["Access-Control-Allow-Origin"] = "*"

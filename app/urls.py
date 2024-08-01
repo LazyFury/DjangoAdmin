@@ -14,14 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from django.contrib import admin  # noqa: F401
 from django.http import HttpResponse
-from django.urls import path,re_path
+from django.urls import path, re_path  # noqa: F401
+
 from api import api
 from api.admin import api as admin_api
 from app import settings
 
-def handle_temp_upload_file_preview(request,path):
+
+def handle_temp_upload_file_preview(request,path):  # noqa: F811
     if not settings.DEBUG:
         return HttpResponse("Not Found", status=404)
     

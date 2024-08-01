@@ -13,7 +13,7 @@ from core.models import User
 api = Router("/api/v1")
 
 api.use(cors_middleware)  # add cors middleware
-api.use(clear_context_each_request,sort=0) # 清理每次请求的上下文
+api.use(clear_context_each_request,sort=0) # 清理每次请求的上下文，测试能力，python 直接绑定 request 属性就可以，一般都是这么用的
 api.use(request_aspects,sort=0) # 请求切面
 api.use(get_user_middleware,sort=1) # 获取用户信息
 
