@@ -1,3 +1,4 @@
+import decimal
 import json
 from django.db import models
 from numpy import double
@@ -202,7 +203,9 @@ class Product(Model):
     
     @jsonGetter(name="price_str")
     def price_str(self):
-        return f"￥{self.price:.2f}"
+        if isinstance(self.price, decimal.Decimal):
+            return f"￥{self.price:.2f}"
+        return f"￥{self.price}"
     
 
     def save(self, *args, **kwargs):

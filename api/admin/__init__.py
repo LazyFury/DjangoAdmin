@@ -120,7 +120,7 @@ Api(ProductService).register(api, "/product-service")
 Api(ProductAttrGroup).register(api, "/product-attr-group")
 Api(Product,
     get_create_params=lambda request:dict_utils.filter_with_not_allow_keys(
-        {**json.loads(request.body)}, ["category", "brand"]
+        {**json.loads(request.body)}, ["category", "brand","price_str"]
     )).register(api, "/product")
 
 def get_product_attr_params(request):

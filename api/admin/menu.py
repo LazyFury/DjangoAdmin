@@ -12,6 +12,7 @@ from api.admin.ui.product import (
     product_attr_value_menu,
     product_brand_menu,
     product_category_menu,
+    product_create_menu,
     product_list_menu,
     product_service_menu,
     product_sku_menu,
@@ -66,6 +67,7 @@ def menus(request: HttpRequest):
                 component="SubMenuView",
                 children=[
                     product_list_menu(),
+                    product_create_menu(),
                     product_category_menu(),
                     ElMenuItem(
                         title="商品规格",
