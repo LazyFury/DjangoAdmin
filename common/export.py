@@ -32,7 +32,7 @@ class XlsxExportField(object):
         if isinstance(value,bool):
             if self.formater == "":
                 self.formater = self.BOOL_FORMAT_STYLE
-            TrueValue,FalseValue = self.formater.split(",")
+            TrueValue,FalseValue = self.formater.split(",")  # noqa: N806
             return TrueValue if value else FalseValue
         if self.type == 'image':
             work_path = settings.BASE_DIR

@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest, HttpResponse
@@ -76,6 +77,23 @@ def request_aspects(get_response):
 
     return wrapper
 
+def in_auth_white_list(request):
+    """ in_auth_white_list
+
+    Args:
+        request (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    for path in settings.AUTH_WHITE_LIST:
+        if isinstance(path,str) and request.path == path:
+            return True
+        if isinstance(path,tuple) and request.path in path:
+            return True
+        if isinstance(path,re.Pattern):
+            return path.match(request.path)
+
 def auth_middleware(get_response):
     """ auth_middleware
 
@@ -93,7 +111,7 @@ def auth_middleware(get_response):
             
         request.user = user if user else AnonymousUser()
 
-        if request.path not in settings.AUTH_WHITE_LIST:
+        if not in_auth_white_list(request):
             if not token:
                 raise ApiNotAuthorizedError("Token not found")
             if not request.user.is_authenticated: 
@@ -108,7 +126,7 @@ def auth_middleware(get_response):
 
 def is_superuser_middleware(get_response):
     def wrapper(request):
-        if request.path in settings.AUTH_WHITE_LIST:
+        if in_auth_white_list(request):
             return get_response(request)
         if not request.user.is_authenticated:
             raise ApiNotAuthorizedError("Not Authenticated")

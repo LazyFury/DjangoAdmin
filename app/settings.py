@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import re
 from better_exceptions.integrations.django import skip_errors_filter
 
 
@@ -183,6 +184,7 @@ AUTH_WHITE_LIST = [
     "/admin/api/login",
     "/admin/api/logout",
     # "/admin/api/common/upload",
+    re.compile(r"^/api/public/.*"),
 ]
 ## 权限默认的content_type_id
 PERMISSION_DEFAULT_CONTENT_TYPE_ID = 8
