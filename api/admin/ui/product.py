@@ -547,16 +547,16 @@ def product_list_menu():
             title="商品列表",
             description="商品列表",
             columns=[
+                # cover
+                ElTableColumn(prop="cover", label="封面", width="120", type="image",className="w-60px h-60px"),
                 # name
                 ElTableColumn(prop="name", label="商品", width="180"),
-                # description
-                ElTableColumn(prop="description", label="描述", width="180"),
-                # cover
-                ElTableColumn(prop="cover", label="封面", width="180", type="image"),
                 # price
-                ElTableColumn(prop="price_str", label="价格", width="180"),
+                ElTableColumn(prop="price_str", label="价格", width="180",className="text-red font-bold"),
                 # category
                 ElTableColumn(prop="category_name", label="分类", width="180"),
+                # description
+                ElTableColumn(prop="description", label="描述", width="180"),
             ],
             search=ElForm(
                 title="search",

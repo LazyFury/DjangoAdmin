@@ -81,7 +81,7 @@
                 </ElButton>
             </div>
             <div class="overflow-x-auto" :style="{
-                width: `calc(100vw - ${subMenuStore.hasSubMenu ? 412 : 180}px)`
+                width: `calc(100vw - ${subMenuStore.hasSubMenu ? 362 : 180}px)`
             }">
                 <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
                     :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
@@ -116,10 +116,10 @@
                             <Icon v-if="column.type == 'icon'" :icon="row[column.prop]" :class="[column.className]">
                             </Icon>
                             <!-- image  -->
-                            <ElImage v-if="column.type == 'image'" :src="$img(row[column.prop])" fit="cover"
+                            <ElImage :attrs="column.props" :class="[(column.className || 'w-40px h-40px')]" v-if="column.type == 'image'" :src="$img(row[column.prop])" fit="cover"
                                 :preview-teleported="true"
                                 :preview-src-list="row[column.prop] ? [$img(row[column.prop])] : []"
-                                style="width: 50px; height: 50px;"></ElImage>
+                                ></ElImage>
                             <ElTag v-if="column.type == 'tag'" :type="column.props?.type || ''">{{ row[column.prop] }}
                             </ElTag>
 

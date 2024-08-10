@@ -19,8 +19,8 @@ export default {
         "box-border",
         "text-center text-left text-right",
         "mr-5 ml-5",
-
-
+        "w-80px h-80px w-60px h-60px w-50px h-50px",
+        "font-bold font-normal font-light",
         "fixed left-1000% top-1000%",
       ],
     };
